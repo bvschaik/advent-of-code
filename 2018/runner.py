@@ -4,7 +4,7 @@ import time
 class runner:
     def solve(self):
         for line in sys.stdin:
-            self.input(line)
+            self.input(line.rstrip())
         start = time.time()
         result1 = self.solve1()
         end1 = time.time()
