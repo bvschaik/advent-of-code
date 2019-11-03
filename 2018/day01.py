@@ -23,6 +23,14 @@ class day01(runner):
             freq += i
 
         modulo = freq
+        if modulo == 0:
+            # Edge case: modulo is 0: solution is either a repeating number in the list or 0
+            seen = set()
+            for f in freqs:
+                if f in seen:
+                    return str(f)
+                seen.add(f)
+            return str(0)
 
         # Every further iteration of the input list will return in 'freqs' offset by 'modulo'.
         # So now, we need to find a number 'x' in the list, for which this formula holds:
@@ -34,9 +42,12 @@ class day01(runner):
             rem = f % modulo
             if rem not in remainders:
                 remainders[rem] = list()
+            if f in remainders[rem]:
+                # Edge case: first iteration contains duplicate number
+                return str(f)
             remainders[rem].append(f)
         
-        min = modulo
+        min = modulo + 1
         min_value = -1
         for source in freqs:
             for target in remainders[source % modulo]:
