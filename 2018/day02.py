@@ -12,9 +12,9 @@ class day02(runner):
     def solve1(self):
         two_letters = 0
         three_letters = 0
-        for id in self.inputs:
+        for code in self.inputs:
             letters = dict()
-            for letter in id:
+            for letter in code:
                 if letter in letters:
                     letters[letter] += 1
                 else:
@@ -33,30 +33,16 @@ class day02(runner):
         return str(two_letters * three_letters)
 
     def solve2(self):
-        max = len(self.inputs)
-        for i in range(max):
-            a = self.inputs[i]
-            for j in range(i + 1, max):
-                b = self.inputs[j]
-                if (self.almost_equal(a, b)):
-                    return self.common_part(a, b)
+        # Assumption: barcodes are all the same length
+        codelen = len(self.inputs[0])
+        for index in range(codelen):
+            values = set()
+            for code in self.inputs:
+                newcode = code[:index] + code[index+1:]
+                if newcode in values:
+                    return newcode
+                values.add(newcode)
 
-    def common_part(self, a, b):
-        result = ""
-        length = len(a)
-        for i in range(length):
-            if a[i] == b[i]:
-                result += str(a[i])
-        return result
-
-    def almost_equal(self, a, b):
-        length = len(a)
-        has_mistake = False
-        for i in range(length):
-            if a[i] != b[i]:
-                if has_mistake:
-                    return False
-                has_mistake = True
-        return has_mistake
+        raise AssertionError("Should not happen")
 
 day02().solve()
