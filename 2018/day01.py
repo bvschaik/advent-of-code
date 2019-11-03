@@ -17,14 +17,23 @@ class day01(runner):
 
     def solve2(self):
         freq = 0
-        freqs = set()
-        while freq not in freqs:
-            for i in self.inputs:
-                freqs.add(freq)
-                freq += i
-                if freq in freqs:
-                    return str(freq)
-            print("Iterating again")
+        lookup = set()
+        freqs = list()
+        for i in self.inputs:
+            lookup.add(freq)
+            freqs.append(freq)
+            freq += i
+            if freq in lookup:
+                return str(freq)
+
+        multiplier = 1
+        while True:
+            offset = freq * multiplier
+            for f in freqs:
+                if (offset + f) in lookup:
+                    return str(offset + f)
+            multiplier += 1
+
         raise AssertionError("Should not happen")
 
 day01().solve()
