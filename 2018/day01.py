@@ -16,24 +16,35 @@ class day01(runner):
         return str(freq)
 
     def solve2(self):
-        freq = 0
-        lookup = set()
         freqs = list()
+        freq = 0
         for i in self.inputs:
-            lookup.add(freq)
             freqs.append(freq)
             freq += i
-            if freq in lookup:
-                return str(freq)
 
-        multiplier = 1
-        while True:
-            offset = freq * multiplier
-            for f in freqs:
-                if (offset + f) in lookup:
-                    return str(offset + f)
-            multiplier += 1
+        modulo = freq
 
-        raise AssertionError("Should not happen")
+        # Every further iteration of the input list will return in 'freqs' offset by 'modulo'.
+        # So now, we need to find a number 'x' in the list, for which this formula holds:
+        # x + modulo * repeats = y, where y is another number in the list, and repeats is minimized.
+        # We know that both x and y should have the same remainder when divided by 'modulo',
+        # so prepare a dictionary for efficiency.
+        remainders = dict()
+        for f in freqs:
+            rem = f % modulo
+            if rem not in remainders:
+                remainders[rem] = list()
+            remainders[rem].append(f)
+        
+        min = modulo
+        min_value = -1
+        for source in freqs:
+            for target in remainders[source % modulo]:
+                if source != target:
+                    repeats = (target - source) / modulo
+                    if repeats >= 0 and repeats < min:
+                        min = repeats
+                        min_value = target
+        return str(min_value)
 
 day01().solve()
