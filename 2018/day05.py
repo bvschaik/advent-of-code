@@ -12,23 +12,25 @@ class day05(runner):
         self.input_line = line
 
     def solve1(self):
-        return str(self.reduce(self.input_line))
+        return str(len(self.reduce(self.input_line)))
 
     def solve2(self):
-        letters = map(lambda x: (x, x.upper()), string.ascii_lowercase)
+        polymer = "".join(self.reduce(self.input_line))
 
-        return str(min(map(lambda x: self.reduce(self.input_line.replace(x[0], "").replace(x[1], "")), letters)))
+        letters = map(lambda x: (x, x.upper()), string.ascii_lowercase)
+        return str(min(map(lambda x: len(self.reduce(polymer.replace(x[0], "").replace(x[1], ""))), letters)))
 
     def reduce(self, polymer):
-        replacements = list(map(lambda x: x + x.upper(), string.ascii_lowercase)) + list(map(lambda x: x.upper() + x, string.ascii_lowercase))
-        start_len = 1 + len(polymer)
-        while start_len > len(polymer):
-            start_len = len(polymer)
-            for r in replacements:
-                polymer = polymer.replace(r, "")
-        return len(polymer)
+        stack = list()
+        for letter in polymer:
+            if stack and stack[-1] == letter:
+                stack.pop()
+            else:
+                stack.append(letter.swapcase())
+
+        return stack
 
 
-day05().test('Sample problem', ['dabAcCaCBAcCcaDA'], '10')
+day05().test('Sample problem', ['dabAcCaCBAcCcaDA'], '10', '4')
 
 day05().solve()
