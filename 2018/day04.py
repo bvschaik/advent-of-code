@@ -70,7 +70,7 @@ class day04(runner):
                 sleep_time = None
 
         sleepy_guard = max(guards.values(), key = lambda x: x.total_minutes_asleep)
-        (sleepy_minute, count) = sleepy_guard.max_sleeping_minute()
+        sleepy_minute = sleepy_guard.max_sleeping_minute()[0]
         return str(sleepy_guard.id * sleepy_minute)
 
     def solve2(self):
