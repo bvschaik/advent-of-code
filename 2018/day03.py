@@ -67,20 +67,16 @@ class day03(runner):
     def mark_overlap(self, id, claims):
         open_claims = []
         for claim in claims:
-            # Remove all claims before claim.left
-            to_remove = list()
+            # Remove all claims that end before claim.left
+            open_claims = [c for c in open_claims if c.left + c.width > claim.left]
+            if open_claims:
+                claim.overlap = True
             for c in open_claims:
-                if c.left + c.width <= claim.left:
-                    to_remove.append(c)
-                else:
-                    c.overlap = True
-                    claim.overlap = True
-            for c in to_remove:
-                open_claims.remove(c)
+                c.overlap = True
             open_claims.append(claim)
 
     def prepare_rows(self):
-        claims_left = sorted(self.inputs, key = lambda x: x.left * 1000 + x.width)
+        claims_left = sorted(self.inputs, key = lambda x: x.left)
         rows = dict()
         for claim in claims_left:
             for i in range(claim.height):
