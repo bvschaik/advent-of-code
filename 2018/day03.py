@@ -9,9 +9,10 @@ class claim:
         self.top = int(m.group(3))
         self.width = int(m.group(4))
         self.height= int(m.group(5))
+        self.overlap = False
 
     def __repr__(self):
-        return str.format("claim(id=%d, left=%d, top=%d, width=%d, height=%d)\n" % (self.id, self.left, self.top, self.width, self.height))
+        return str.format("claim(id=%d, left=%d, top=%d, width=%d, height=%d)" % (self.id, self.left, self.top, self.width, self.height))
 
 class day03(runner):
     def __init__(self):
@@ -24,14 +25,7 @@ class day03(runner):
         self.inputs.append(claim(line))
 
     def solve1(self):
-        claims_left = sorted(self.inputs, key = lambda x: x.left * 1000 + x.width)
-        rows = dict()
-        for claim in claims_left:
-            for i in range(claim.height):
-                row = claim.top + i
-                if row not in rows:
-                    rows[row] = []
-                rows[row].append(claim)
+        rows = self.prepare_rows()
 
         overlap_tiles = 0
         for (id, row) in rows.items():
@@ -57,12 +51,50 @@ class day03(runner):
         return overlap_tiles
 
     def solve2(self):
-        pass
+        rows = self.prepare_rows()
+
+        for (id, row) in rows.items():
+            self.mark_overlap(id, row)
+
+        non_overlapping = None
+        for claim in self.inputs:
+            if not claim.overlap:
+                if non_overlapping is not None:
+                    raise AssertionError("Only one claim expected, multiple found")
+                non_overlapping = claim
+        return str(non_overlapping.id)
+
+    def mark_overlap(self, id, claims):
+        open_claims = []
+        for claim in claims:
+            # Remove all claims before claim.left
+            to_remove = list()
+            for c in open_claims:
+                if c.left + c.width <= claim.left:
+                    to_remove.append(c)
+                else:
+                    c.overlap = True
+                    claim.overlap = True
+            for c in to_remove:
+                open_claims.remove(c)
+            open_claims.append(claim)
+
+    def prepare_rows(self):
+        claims_left = sorted(self.inputs, key = lambda x: x.left * 1000 + x.width)
+        rows = dict()
+        for claim in claims_left:
+            for i in range(claim.height):
+                row = claim.top + i
+                if row not in rows:
+                    rows[row] = []
+                rows[row].append(claim)
+        return rows
+
 
 day03().test('Sample problem', [
     '#1 @ 1,3: 4x4',
     '#2 @ 3,1: 4x4',
     '#3 @ 5,5: 2x2'
-], '4')
+], '4', '3')
 
 day03().solve()
