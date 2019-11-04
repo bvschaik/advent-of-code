@@ -1,7 +1,8 @@
 from runner import runner
 
 class day01(runner):
-    inputs = []
+    def __init__(self):
+        self.inputs = []
 
     def day(self):
         return 1
@@ -57,5 +58,9 @@ class day01(runner):
                         min = repeats
                         min_value = target
         return str(min_value)
+
+day01().test('Zero frequency', ['1', '-1'], '0', '0')
+day01().test('Zero frequency with same freq in initial set', ['1', '1', '-1', '-1'], '0', '1')
+day01().test('Same frequency within initial set', ['1', '1', '-1'], '1', '1')
 
 day01().solve()

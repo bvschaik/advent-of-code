@@ -1,7 +1,8 @@
 from runner import runner
 
 class day02(runner):
-    inputs = []
+    def __init__(self):
+        self.inputs = []
 
     def day(self):
         return 2
