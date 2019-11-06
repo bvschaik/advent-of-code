@@ -15,6 +15,8 @@ class runner:
         print("Day %d: solution 1 = %s (%d ms), solution 2 = %s (%d ms)" % (self.day(), result1, time1, result2, time2))
 
     def test(self, name, inputs, expected1, expected2 = None):
+        if len(sys.argv) > 1 and sys.argv[1] == 'skip-test':
+            return
         print("Running test:", name)
         for line in inputs:
             self.input(line)
