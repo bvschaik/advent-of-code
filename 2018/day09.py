@@ -1,5 +1,5 @@
 import re
-from collections import defaultdict
+from collections import deque
 from runner import runner
 
 class node:
@@ -34,13 +34,13 @@ class day09(runner):
         self.marbles = int(m.group(2))
 
     def solve1(self):
-        return str(self.simulate(self.marbles))
+        return str(self.simulate2(self.marbles))
 
     def solve2(self):
-        return str(self.simulate(self.marbles * 100))
+        return str(self.simulate2(self.marbles * 100))
 
     def simulate(self, max_marbles):
-        scores = defaultdict(int)
+        scores = [0] * self.players
         nodes = [node(id) for id in range(0, max_marbles + 1)]
 
         current = nodes[0]
@@ -54,7 +54,23 @@ class day09(runner):
                 current = current.remove()
             else:
                 current = nodes[m].insert_after(current.next)
-        return max(scores.values())
+        return max(scores)
+
+    def simulate2(self, max_marbles):
+        scores = [0] * self.players
+
+        q = deque()
+        q.append(0)
+        for m in range(1, max_marbles + 1):
+            if m % 23 == 0:
+                for _ in range(0, 7):
+                    q.appendleft(q.pop())
+                scores[m % self.players] += m + q.pop()
+                q.append(q.popleft())
+            else:
+                q.append(q.popleft())
+                q.append(m)
+        return max(scores)
 
 day09().test('Sample input', ['9 players; last marble is worth 25 points'], '32')
 day09().test('Extra sample 1', ['10 players; last marble is worth 1618 points'], '8317')
