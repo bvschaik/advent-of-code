@@ -8,12 +8,16 @@ class step:
         self.needs = list()
         self.is_needed_for = list()
         self.done = False
+        self.done_time = 0
 
     def can_do(self):
         for s in self.needs:
             if not s.done:
                 return False
         return True
+
+    def dependencies_done_at(self):
+        return max(map(lambda s: s.done_time, self.needs), default = 0)
 
     def name(self):
         return chr(self.id + ord('A'))
@@ -24,9 +28,15 @@ class step:
 def name_to_index(letter):
     return ord(letter) - ord('A')
 
+class worker:
+    def __init__(self):
+        self.available_at = 0
+
 class day07(runner):
-    def __init__(self, part2_threshold = 10000):
+    def __init__(self, num_workers = 5, base_task_duration = 61):
         self.steps = [None] * 26
+        self.base_task_duration = base_task_duration
+        self.workers = [worker() for _ in range(num_workers)]
 
     def day(self):
         return 7
@@ -62,9 +72,30 @@ class day07(runner):
         return "".join(order)
 
     def solve2(self):
-        pass
+        h = []
+        for s in self.steps:
+            if s is not None:
+                s.done = False
+                if not s.needs:
+                    heapq.heappush(h, ((0, s.id), s))
+        
+        while len(h) > 0:
+            ((time, _), s) = heapq.heappop(h)
+            step_time = self.base_task_duration + s.id
+            worker = self.next_available_worker()
+            worker.available_at = max(worker.available_at, time) + step_time
+            s.done = True
+            s.done_time = worker.available_at
+            for dep_step in s.is_needed_for:
+                if dep_step.can_do():
+                    heapq.heappush(h, ((dep_step.dependencies_done_at(), dep_step.id), dep_step))
 
-day07().test('Sample input', [
+        return str(max(self.workers, key = lambda w: w.available_at).available_at)
+
+    def next_available_worker(self):
+        return min(self.workers, key = lambda w: w.available_at)
+
+day07(num_workers = 2, base_task_duration = 1).test('Sample input', [
     'Step C must be finished before step A can begin.',
     'Step C must be finished before step F can begin.',
     'Step A must be finished before step B can begin.',
@@ -72,6 +103,6 @@ day07().test('Sample input', [
     'Step B must be finished before step E can begin.',
     'Step D must be finished before step E can begin.',
     'Step F must be finished before step E can begin.'
-], 'CABDFE')
+], 'CABDFE', '15')
 
 day07().solve()
