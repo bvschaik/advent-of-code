@@ -46,15 +46,31 @@ class day10(runner):
         self.stars.append(star(int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4))))
 
     def solve1(self):
-        # find smallest T where every point is positive in both x and y
-        start_time = max(map(lambda p: p.time_until_positive(), self.stars))
-        # find largest T where every point is still positive in both x and y
-        end_time = min(map(lambda p: p.time_until_negative(), self.stars))
+        # The message will be shown when all stars are close together, i.e. when the size of the constellation is smallest
+        # The constellation is smallest when the points are close together,
+        # so find the point where two lines in opposite directions cross
+        positive_line = next(filter(lambda p: p.dx > 0 and p.dy > 0, self.stars))
+        negative_line = next(filter(lambda p: p.dx < 0 and p.dy < 0, self.stars))
 
-        # find time where constellation is smallest
-        min_time = min(range(start_time, end_time + 1), key = lambda t: self.constellation_size(t))
+        # find t where Pos(t) = Neg(t), or: Px + t * Pdx == Nx + t * Ndx -> t * Pdx - t * Ndx = Nx - Px -> t = (Nx - Px) / (Pdx - Ndx)
+        approx_time = int((negative_line.x - positive_line.x) / (positive_line.dx - negative_line.dx))
+        if self.constellation_size(approx_time) > self.constellation_size(approx_time + 1):
+            min_time = self.find_smallest_constellation_size(approx_time, +1)
+        else:
+            min_time = self.find_smallest_constellation_size(approx_time, -1)
         self.print_constellation(min_time)
         return str(min_time)
+
+    def find_smallest_constellation_size(self, time, delta):
+        next_time = time + delta
+        size = self.constellation_size(time)
+        next_size = self.constellation_size(next_time)
+        while next_size < size:
+            time = next_time
+            next_time = time + delta
+            size = next_size
+            next_size = self.constellation_size(next_time)
+        return time
 
     def constellation_size(self, time):
         positions = set(map(lambda p: p.position_at(time), self.stars))
