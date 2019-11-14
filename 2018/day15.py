@@ -23,7 +23,6 @@ class day15(runner):
 
     def solve1(self):
         cavern = list(map(lambda x: list(x), self.start_map))
-        distances = [[0 for x in range(len(cavern[0]))] for y in range(len(cavern))]
         units = self.init_units(cavern)
 
         rounds = 0
@@ -37,33 +36,79 @@ class day15(runner):
                     continue
                 if not has_targets:
                     round_incomplete = True
-                    continue
-                opponent = self.opponent_in_range(u, units, cavern)
-                if not opponent:
-                    target_tile = self.a_star(cavern, distances, u.x, u.y, u.opponent)
-                    if target_tile:
-                        self.move_unit_toward(u, target_tile[0], target_tile[1], cavern, distances)
-                        opponent = self.opponent_in_range(u, units, cavern)
+                    break
+
+                opponent = self.move_and_determine_opponent(u, units, cavern)
 
                 # Attack
-                if opponent:
-                    opponent.hp -= 3
-                    if opponent.hp <= 0:
-                        cavern[opponent.y][opponent.x] = '.'
-                        alive_types = set()
-                        for u in units:
-                            if u.hp > 0:
-                                alive_types.add(u.type)
-                        has_targets = len(alive_types) > 1
+                if opponent and self.attack(opponent, cavern):
+                    has_targets = self.determine_has_targets(units)
+
             units = list(filter(lambda u: u.hp > 0, units))
 
-            #print(rounds)
-            #self.print_map(cavern, units)
         completed_rounds = rounds - 1 if round_incomplete else rounds
         hp_remaining = sum(map(lambda u: u.hp, units))
-        # print(units)
-        # print("Completed rounds: %d, HP remaining %d" % (completed_rounds, hp_remaining))
         return str(completed_rounds * hp_remaining)
+
+    def solve2(self):
+        for elf_attack in range(4, 100):
+            result = self.simulate_with_attack(elf_attack)
+            if result:
+                return result
+
+    def simulate_with_attack(self, elf_attack):
+        cavern = list(map(lambda x: list(x), self.start_map))
+        units = self.init_units(cavern)
+
+        rounds = 0
+        has_targets = True
+        round_incomplete = False
+        while has_targets:
+            rounds += 1
+            units.sort(key = lambda u: (u.y, u.x))
+            for u in units:
+                if u.hp <= 0:
+                    continue
+                if not has_targets:
+                    round_incomplete = True
+                    break
+
+                opponent = self.move_and_determine_opponent(u, units, cavern)
+
+                # Attack
+                if opponent and self.attack(opponent, cavern, elf_attack if u.type == 'E' else 3):
+                    has_targets = self.determine_has_targets(units)
+                    if opponent.type == 'E':
+                        return None
+
+            units = list(filter(lambda u: u.hp > 0, units))
+
+        completed_rounds = rounds - 1 if round_incomplete else rounds
+        hp_remaining = sum(map(lambda u: u.hp, units))
+        return str(completed_rounds * hp_remaining)
+
+    def move_and_determine_opponent(self, u, units, cavern):
+        opponent = self.opponent_in_range(u, units, cavern)
+        if not opponent:
+            next_tile = self.a_star(cavern, u.x, u.y, u.opponent)
+            if next_tile:
+                self.move_unit_to(u, next_tile[0], next_tile[1], cavern)
+                opponent = self.opponent_in_range(u, units, cavern)
+        return opponent
+
+    def attack(self, opponent, cavern, attack = 3):
+        opponent.hp -= attack
+        if opponent.hp <= 0:
+            cavern[opponent.y][opponent.x] = '.'
+            return True
+        return False
+
+    def determine_has_targets(self, units):
+        alive_types = set()
+        for u in units:
+            if u.hp > 0:
+                alive_types.add(u.type)
+        return len(alive_types) > 1
 
     def print_map(self, cavern, units):
         for (y, row) in enumerate(cavern):
@@ -107,10 +152,8 @@ class day15(runner):
                 return u
         return None
 
-    def a_star(self, cavern, distances, x, y, target):
-        for row in distances:
-            for n in range(len(row)):
-                row[n] = -1
+    def a_star(self, cavern, x, y, target):
+        distances = [[-1 for xx in range(len(cavern[0]))] for yy in range(len(cavern))]
         d = 0
         tiles = set([(x, y)])
         target_tiles = []
@@ -130,7 +173,7 @@ class day15(runner):
             d += 1
         if target_tiles:
             target_tiles.sort()
-            return (target_tiles[0][1], target_tiles[0][0])
+            return self.backtrack(target_tiles[0][1], target_tiles[0][0], distances)
         else:
             return None
 
@@ -140,8 +183,7 @@ class day15(runner):
             next_tiles.add((x, y))
         return tile == target
 
-    def move_unit_toward(self, u, x, y, cavern, distances):
-        (next_x, next_y) = self.backtrack(x, y, distances)
+    def move_unit_to(self, u, next_x, next_y, cavern):
         cavern[u.y][u.x] = '.'
         cavern[next_y][next_x] = u.type
         u.x = next_x
@@ -166,9 +208,6 @@ class day15(runner):
         sorted_tiles = sorted(tiles, key = lambda p: (p[1], p[0]))
         return sorted_tiles[0]
 
-    def solve2(self):
-        pass
-
 day15().test('Sample input', [
     '#######',
     '#.G...#',
@@ -177,7 +216,7 @@ day15().test('Sample input', [
     '#..G#E#',
     '#.....#',
     '#######',
-], '27730')
+], '27730', '4988')
 
 day15().test('Example 1', [
     '#######', #       #######
@@ -197,7 +236,7 @@ day15().test('Example 2', [
     '#G..#.#', #       #.E.#.#   E(200)
     '#..E#.#', #       #...#.#
     '#######', #       #######
-], '39514')
+], '39514', '31284')
 
 day15().test('Example 3', [
     '#######', #       #######   
@@ -207,7 +246,7 @@ day15().test('Example 3', [
     '#G..#.#', #       #...#G#   G(95)
     '#...E.#', #       #...G.#   G(200)
     '#######', #       #######   
-], '27755')
+], '27755', '3478')
 
 day15().test('Example 4', [
     '#######', #       #######   
@@ -217,7 +256,7 @@ day15().test('Example 4', [
     '#E#G#G#', #       #.#.#.#   
     '#...#G#', #       #G.G#G#   G(98), G(38), G(200)
     '#######', #       #######   
-], '28944')
+], '28944', '6474')
 
 day15().test('Example 5', [
     '#########', #
@@ -229,6 +268,6 @@ day15().test('Example 5', [
     '#.G...G.#', #
     '#.....G.#', #
     '#########', #
-], '18740')
+], '18740', '1140')
 
 day15().solve()
