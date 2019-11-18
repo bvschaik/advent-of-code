@@ -1,3 +1,4 @@
+from collections import defaultdict
 from runner import runner
 
 class day02(runner):
@@ -14,12 +15,9 @@ class day02(runner):
         two_letters = 0
         three_letters = 0
         for code in self.inputs:
-            letters = dict()
+            letters = defaultdict(int)
             for letter in code:
-                if letter in letters:
-                    letters[letter] += 1
-                else:
-                    letters[letter] = 1
+                letters[letter] += 1
             two = False
             three = False
             for letter, frequency in letters.items():

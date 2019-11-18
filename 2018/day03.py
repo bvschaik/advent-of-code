@@ -1,4 +1,5 @@
 import re
+from collections import defaultdict
 from runner import runner
 
 class claim:
@@ -77,13 +78,10 @@ class day03(runner):
 
     def prepare_rows(self):
         claims_left = sorted(self.inputs, key = lambda x: x.left)
-        rows = dict()
+        rows = defaultdict(list)
         for claim in claims_left:
             for i in range(claim.height):
-                row = claim.top + i
-                if row not in rows:
-                    rows[row] = []
-                rows[row].append(claim)
+                rows[claim.top + i].append(claim)
         return rows
 
 

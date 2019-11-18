@@ -1,3 +1,4 @@
+from collections import defaultdict
 from runner import runner
 
 class day01(runner):
@@ -38,11 +39,9 @@ class day01(runner):
         # x + modulo * repeats = y, where y is another number in the list, and repeats is minimized.
         # We know that both x and y should have the same remainder when divided by 'modulo',
         # so prepare a dictionary for efficiency.
-        remainders = dict()
+        remainders = defaultdict(list)
         for f in freqs:
             rem = f % modulo
-            if rem not in remainders:
-                remainders[rem] = list()
             if f in remainders[rem]:
                 # Edge case: first iteration contains duplicate number
                 return str(f)
