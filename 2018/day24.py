@@ -25,6 +25,14 @@ class attack_group:
     def damage_modifier(self, attack_type):
         return self.modifiers[attack_type] if attack_type in self.modifiers else 1
 
+    def copy(self):
+        return copy.copy(self)
+
+    def copy_with_boost(self, boost):
+        c = copy.copy(self)
+        c.attack += boost
+        return c
+
 class day24(runner):
     def __init__(self):
         self.immune_system = []
@@ -58,6 +66,20 @@ class day24(runner):
 
     def solve1(self):
         all_armies = [copy.copy(x) for x in self.infection] + [copy.copy(x) for x in self.immune_system]
+        winning_army = self.do_battle(all_armies)
+
+        return str(sum(map(lambda a: a.units, winning_army)))
+
+    def solve2(self):
+        boost = 1
+        while True:
+            all_armies = [x.copy_with_boost(boost) for x in self.immune_system] + [x.copy() for x in self.infection]
+            winning_army = self.do_battle(all_armies)
+            if winning_army and winning_army[0].type == type_immune:
+                return str(sum(map(lambda a: a.units, winning_army)))
+            boost += 1
+
+    def do_battle(self, all_armies):
         can_continue = True
         while can_continue:
             all_armies.sort(key = lambda a: (a.units * a.attack, a.initiative), reverse = True)
@@ -76,19 +98,22 @@ class day24(runner):
 
             # Attack phase
             all_armies.sort(key = lambda a: a.initiative, reverse = True)
+            total_killed = 0
             for army in all_armies:
                 target = army.target
                 if target and army.units > 0:
                     total_damage = army.units * army.attack * target.damage_modifier(army.attack_type)
-                    target.units -= total_damage // target.hitpoints
+                    killed_units = total_damage // target.hitpoints
+                    target.units -= killed_units
+                    total_killed += killed_units
 
             all_armies = list(filter(lambda a: a.units > 0, all_armies))
             can_continue = len(set(map(lambda a: a.type, all_armies))) > 1
+            if can_continue and total_killed == 0:
+                return None
 
-        return str(sum(map(lambda a: a.units, all_armies)))
+        return all_armies
 
-    def solve2(self):
-        pass
 
 day24().test('Sample input', [
     'Immune System:',
