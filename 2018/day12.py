@@ -1,12 +1,49 @@
 import re
 from runner import runner
+from collections import defaultdict
+
+class plant_configuration:
+    def __init__(self, configuration, offset):
+        while configuration.startswith('.....'):
+            configuration = configuration[1:]
+            offset += 1
+        while not configuration.startswith('....'):
+            configuration = '.' + configuration
+            offset -= 1
+        while configuration.endswith('......'):
+            configuration = configuration[:-1]
+        while not configuration.endswith('....'):
+            configuration += '.'
+        self.configuration = configuration
+        self.offset = offset
+
+    def next_generation(self, rules):
+        new_config = []
+        for i in range(len(self.configuration) - 4):
+            new_config.append(rules[self.configuration[i:i+5]])
+        return plant_configuration(''.join(new_config), self.offset + 2)
+
+    def sum_plants(self):
+        return self.sum_plants_with_offset(self.offset)
+
+    def sum_plants_with_offset(self, offset):
+        number_sum = 0
+        for (i, val) in enumerate(self.configuration):
+            if val == '#':
+                number_sum += i + offset
+        return number_sum
+
+    def __repr__(self):
+        return self.configuration + " " + str(self.offset)
+
+def dot():
+    return '.'
 
 class day12(runner):
-    base_offset = 100
 
     def __init__(self):
         self.state = []
-        self.rules = [0] * 32
+        self.rules = defaultdict(dot)
 
     def day(self):
         return 12
@@ -14,54 +51,55 @@ class day12(runner):
     def input(self, line):
         m = re.match(r"initial state: ([\.#]+)", line)
         if m:
-            self.state = list(map(lambda x: 1 if x == '#' else 0, m.group(1)))
+            self.state = m.group(1)
         else:
             m = re.match(r"([\.#]+) => ([\.#])", line)
             if m:
-                index = sum(map(lambda x: 1 << (4 - x[0]) if x[1] == '#' else 0, enumerate(m.group(1))))
-                self.rules[int(index)] = 1 if m.group(2) == '#' else 0
+                self.rules[m.group(1)] = m.group(2)
 
     def solve1(self):
-        working_state = [0] * self.base_offset + self.state + [0] * 400
+        working_state = plant_configuration(self.state, 0)
 
-        for _ in range(0, 20):
-            working_state = self.next_generation(working_state)
+        for _ in range(20):
+            working_state = working_state.next_generation(self.rules)
         
-        return str(self.sum_plants_with_offset(working_state, -self.base_offset))
+        return str(working_state.sum_plants())
 
     def solve2(self):
-        patterns = list()
-        pattern_offsets = list()
+        configurations = list()
+        patterns_lookup = dict()
 
-        working_state = [0] * self.base_offset + self.state + [0] * 400
-        for generation in range(0, 200):
-            first_plant = working_state.index(1)
-            last_plant = len(working_state) - 1 - working_state[::-1].index(1)
-            pattern = working_state[first_plant:last_plant+1]
-            if pattern in patterns:
-                index = patterns.index(pattern)
-                delta_offset = first_plant - pattern_offsets[index]
+        working_state = plant_configuration(self.state, 0)
+        generation = 0
+        while True:
+            if working_state.configuration in patterns_lookup:
+                prev_generation = patterns_lookup[working_state.configuration]
+                prev_state = configurations[prev_generation]
+                delta_offset = working_state.offset - prev_state.offset
                 target_generation = 50000000000
                 generations_to_go = target_generation - generation
-                return str(self.sum_plants_with_offset(working_state, generations_to_go * delta_offset - self.base_offset))
-            patterns.append(pattern)
-            pattern_offsets.append(first_plant)
-            working_state = self.next_generation(working_state)
-        pass
+                return str(working_state.sum_plants_with_offset(generations_to_go * delta_offset + working_state.offset))
+            configurations.append(working_state)
+            patterns_lookup[working_state.configuration] = generation
+            generation += 1
+            working_state = working_state.next_generation(self.rules)
 
-    def next_generation(self, working_state):
-        value = working_state[0] << 1 + working_state[1]
-        new_state = [0] * len(working_state)
-        for i in range(2, len(working_state) - 2):
-            value = ((value & 15) << 1) + working_state[i+2]
-            new_state[i] = self.rules[value]
-        return new_state
-
-    def sum_plants_with_offset(self, pattern, offset):
-        number_sum = 0
-        for (i, val) in enumerate(pattern):
-            if val == 1:
-                number_sum += i + offset
-        return number_sum
+day12().test('Sample input', [
+    'initial state: #..#.#..##......###...###',
+    '...## => #',
+    '..#.. => #',
+    '.#... => #',
+    '.#.#. => #',
+    '.#.## => #',
+    '.##.. => #',
+    '.#### => #',
+    '#.#.# => #',
+    '#.### => #',
+    '##.#. => #',
+    '##.## => #',
+    '###.. => #',
+    '###.# => #',
+    '####. => #',
+], '325')
 
 day12().solve()
