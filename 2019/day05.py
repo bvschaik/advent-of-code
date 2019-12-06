@@ -12,6 +12,10 @@ class intcode_computer:
             2: self.multiply,
             3: self.read_input,
             4: self.write_output,
+            5: self.jump_if_true,
+            6: self.jump_if_false,
+            7: self.less_than,
+            8: self.equals,
             99: self.exit
         }
 
@@ -21,7 +25,7 @@ class intcode_computer:
             self.opcodes[opcode]()
 
     def add(self):
-        print("ADD %d (%d %d %d)" % (self.program[self.ip + 0], self.program[self.ip + 1], self.program[self.ip + 2], self.program[self.ip + 3]))
+        # print("ADD %d (%d %d %d)" % (self.program[self.ip + 0], self.program[self.ip + 1], self.program[self.ip + 2], self.program[self.ip + 3]))
         val_a = self.get_value(1)
         val_b = self.get_value(2)
         reg_c = self.program[self.ip + 3]
@@ -29,7 +33,7 @@ class intcode_computer:
         self.ip += 4
 
     def multiply(self):
-        print("MUL %d (%d %d %d)" % (self.program[self.ip + 0], self.program[self.ip + 1], self.program[self.ip + 2], self.program[self.ip + 3]))
+        # print("MUL %d (%d %d %d)" % (self.program[self.ip + 0], self.program[self.ip + 1], self.program[self.ip + 2], self.program[self.ip + 3]))
         val_a = self.get_value(1)
         val_b = self.get_value(2)
         reg_c = self.program[self.ip + 3]
@@ -37,17 +41,45 @@ class intcode_computer:
         self.ip += 4
 
     def read_input(self):
-        print("IN %d %d" % (self.program[self.ip + 0], self.program[self.ip + 1]))
+        # print("IN %d %d" % (self.program[self.ip + 0], self.program[self.ip + 1]))
         reg_a = self.program[self.ip + 1]
         self.program[reg_a] = self.input[0]
         del self.input[0]
         self.ip += 2
 
     def write_output(self):
-        print("OUT %d %d" % (self.program[self.ip + 0], self.program[self.ip + 1]))
+        # print("OUT %d %d" % (self.program[self.ip + 0], self.program[self.ip + 1]))
         val = self.get_value(1)
         self.output.append(val)
         self.ip += 2
+
+    def jump_if_true(self):
+        val = self.get_value(1)
+        if val:
+            self.ip = self.get_value(2)
+        else:
+            self.ip += 3
+
+    def jump_if_false(self):
+        val = self.get_value(1)
+        if val == 0:
+            self.ip = self.get_value(2)
+        else:
+            self.ip += 3
+
+    def less_than(self):
+        val_a = self.get_value(1)
+        val_b = self.get_value(2)
+        reg_c = self.program[self.ip + 3]
+        self.program[reg_c] = 1 if val_a < val_b else 0
+        self.ip += 4
+
+    def equals(self):
+        val_a = self.get_value(1)
+        val_b = self.get_value(2)
+        reg_c = self.program[self.ip + 3]
+        self.program[reg_c] = 1 if val_a == val_b else 0
+        self.ip += 4
 
     def exit(self):
         self.ip += 1
@@ -80,11 +112,13 @@ class runner(adventofcode.runner):
     def solve1(self):
         computer = intcode_computer(list(self.data), [1])
         computer.run()
-        print(computer.output)
+        # print(computer.output)
         return computer.output[-1]
 
     def solve2(self):
-        pass
+        computer = intcode_computer(list(self.data), [5])
+        computer.run()
+        return computer.output[-1]
 
 r = runner()
 
