@@ -1,8 +1,11 @@
 import adventofcode
+from collections import defaultdict
 
 class intcode_computer:
     def __init__(self, program, input = []):
-        self.program = program
+        self.program = defaultdict(int)
+        for i, x in enumerate(program):
+            self.program[i] = x
         self.ip = 0
         self.relative_base = 0
         self.running = True
@@ -23,8 +26,10 @@ class intcode_computer:
 
     def run(self):
         while self.running:
-            opcode = self.program[self.ip] % 100
-            self.opcodes[opcode]()
+            code = self.program[self.ip]
+            opcode = code % 100
+            modes = code // 100
+            self.opcodes[opcode](modes)
 
     def run_until_output(self):
         while self.running:
@@ -34,95 +39,94 @@ class intcode_computer:
                 return self.output[-1]
         return None
 
-    def add(self):
+    def add(self, modes):
         # print("ADD %d (%d %d %d)" % (self.program[self.ip + 0], self.program[self.ip + 1], self.program[self.ip + 2], self.program[self.ip + 3]))
-        val_a = self.get_value(1)
-        val_b = self.get_value(2)
-        reg_c = self.get_register(3)
+        val_a = self.get_value(1, modes)
+        val_b = self.get_value(2, modes)
+        reg_c = self.get_register(3, modes)
         self.set_value(reg_c, val_a + val_b)
         self.ip += 4
 
-    def multiply(self):
+    def multiply(self, modes):
         # print("MUL %d (%d %d %d)" % (self.program[self.ip + 0], self.program[self.ip + 1], self.program[self.ip + 2], self.program[self.ip + 3]))
-        val_a = self.get_value(1)
-        val_b = self.get_value(2)
-        reg_c = self.get_register(3)
+        val_a = self.get_value(1, modes)
+        val_b = self.get_value(2, modes)
+        reg_c = self.get_register(3, modes)
         self.set_value(reg_c, val_a * val_b)
         self.ip += 4
 
-    def read_input(self):
+    def read_input(self, modes):
         # print("IN %d %d" % (self.program[self.ip + 0], self.program[self.ip + 1]))
-        reg_a = self.get_register(1)
+        reg_a = self.get_register(1, modes)
         self.set_value(reg_a, self.input.pop(0))
         self.ip += 2
 
-    def write_output(self):
-        val = self.get_value(1)
+    def write_output(self, modes):
+        val = self.get_value(1, modes)
         # print("OUT %d %d = %d" % (self.program[self.ip + 0], self.program[self.ip + 1], val))
         self.output.append(val)
         self.ip += 2
 
-    def jump_if_true(self):
-        val = self.get_value(1)
+    def jump_if_true(self, modes):
+        val = self.get_value(1, modes)
         if val:
-            self.ip = self.get_value(2)
+            self.ip = self.get_value(2, modes)
         else:
             self.ip += 3
 
-    def jump_if_false(self):
-        val = self.get_value(1)
+    def jump_if_false(self, modes):
+        val = self.get_value(1, modes)
         if val == 0:
-            self.ip = self.get_value(2)
+            self.ip = self.get_value(2, modes)
         else:
             self.ip += 3
 
-    def less_than(self):
-        val_a = self.get_value(1)
-        val_b = self.get_value(2)
-        reg_c = self.get_register(3)
+    def less_than(self, modes):
+        val_a = self.get_value(1, modes)
+        val_b = self.get_value(2, modes)
+        reg_c = self.get_register(3, modes)
         self.set_value(reg_c, 1 if val_a < val_b else 0)
         self.ip += 4
 
-    def equals(self):
-        val_a = self.get_value(1)
-        val_b = self.get_value(2)
-        reg_c = self.get_register(3)
+    def equals(self, modes):
+        val_a = self.get_value(1, modes)
+        val_b = self.get_value(2, modes)
+        reg_c = self.get_register(3, modes)
         self.set_value(reg_c, 1 if val_a == val_b else 0)
         self.ip += 4
 
-    def adjust_relative_base(self):
-        val_a = self.get_value(1)
+    def adjust_relative_base(self, modes):
         # print("REL += %d" % val_a)
-        self.relative_base += val_a
+        self.relative_base += self.get_value(1, modes)
         self.ip += 2
 
-    def exit(self):
+    def exit(self, modes):
         self.ip += 1
         self.running = False
 
-    def get_value(self, index):
+    def get_value(self, index, modes):
         if index == 1:
-            mode = (self.program[self.ip] // 100) % 10
+            mode = (modes) % 10
         elif index == 2:
-            mode = (self.program[self.ip] // 1000) % 10
+            mode = (modes // 10) % 10
         elif index == 3:
-            mode = (self.program[self.ip] // 10000) % 10
+            mode = (modes // 100) % 10
         else:
             raise NotImplementedError()
-        val = self.program[self.ip + index]
         if mode == 0:
-            val = self.program[val] if val < len(self.program) else 0
+            return self.program[self.program[self.ip + index]]
+        elif mode == 1:
+            return self.program[self.ip + index]
         elif mode == 2:
-            val = self.program[val + self.relative_base]
-        return val
+            return self.program[self.program[self.ip + index] + self.relative_base]
 
-    def get_register(self, index):
+    def get_register(self, index, modes):
         if index == 1:
-            mode = (self.program[self.ip] // 100) % 10
+            mode = (modes) % 10
         elif index == 2:
-            mode = (self.program[self.ip] // 1000) % 10
+            mode = (modes // 10) % 10
         elif index == 3:
-            mode = (self.program[self.ip] // 10000) % 10
+            mode = (modes // 100) % 10
         else:
             raise NotImplementedError("Index not implemented")
         val = self.program[self.ip + index]
@@ -134,12 +138,7 @@ class intcode_computer:
             raise NotImplementedError("Mode not implemented")
 
     def set_value(self, index, val):
-        self.expand_to_index(index)
         self.program[index] = val
-
-    def expand_to_index(self, index):
-        while index >= len(self.program):
-            self.program.append(0)
 
 class runner(adventofcode.runner):
     def __init__(self):
