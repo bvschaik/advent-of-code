@@ -4,40 +4,40 @@ import re
 
 class jupiter_moon:
     def __init__(self, x, y, z):
-        self.px = x
-        self.py = y
-        self.pz = z
-        self.vx = 0
-        self.vy = 0
-        self.vz = 0
+        self.start_position = [x, y, z]
+        self.position = [x, y, z]
+        self.velocity = [0, 0, 0]
 
     def apply_gravity(self, moon):
-        if self.px < moon.px:
-            self.vx += 1
-        elif self.px > moon.px:
-            self.vx -= 1
-        if self.py < moon.py:
-            self.vy += 1
-        elif self.py > moon.py:
-            self.vy -= 1
-        if self.pz < moon.pz:
-            self.vz += 1
-        elif self.pz > moon.pz:
-            self.vz -= 1
+        if self.position[0] < moon.position[0]:
+            self.velocity[0] += 1
+            moon.velocity[0] -= 1
+        elif self.position[0] > moon.position[0]:
+            self.velocity[0] -= 1
+            moon.velocity[0] += 1
+        if self.position[1] < moon.position[1]:
+            self.velocity[1] += 1
+            moon.velocity[1] -= 1
+        elif self.position[1] > moon.position[1]:
+            self.velocity[1] -= 1
+            moon.velocity[1] += 1
+        if self.position[2] < moon.position[2]:
+            self.velocity[2] += 1
+            moon.velocity[2] -= 1
+        elif self.position[2] > moon.position[2]:
+            self.velocity[2] -= 1
+            moon.velocity[2] += 1
 
     def move(self):
-        self.px += self.vx
-        self.py += self.vy
-        self.pz += self.vz
+        self.position[0] += self.velocity[0]
+        self.position[1] += self.velocity[1]
+        self.position[2] += self.velocity[2]
 
     def energy(self):
-        return (abs(self.px) + abs(self.py) + abs(self.pz)) * (abs(self.vx) + abs(self.vy) + abs(self.vz))
-
-    def state(self):
-        return (self.px, self.py, self.pz, self.vx, self.vy, self.vz)
+        return sum(map(abs, self.position)) * sum(map(abs, self.velocity))
 
     def __repr__(self):
-        return str.format('p=(%d, %d, %d) v=(%d, %d, %d)' % (self.px, self.py, self.pz, self.vx, self.vy, self.vz))
+        return str.format('p=%s v=%s' % (self.position, self.velocity))
 
 class runner(adventofcode.runner):
     def __init__(self):
@@ -54,10 +54,9 @@ class runner(adventofcode.runner):
         moons = list(map(lambda m: jupiter_moon(m[0], m[1], m[2]), self.moons))
 
         for _ in range(0, 1000):
-            for m in moons:
-                for n in moons:
-                    if m != n:
-                        m.apply_gravity(n)
+            for i in range(1, len(moons)):
+                for j in range(i):
+                    moons[i].apply_gravity(moons[j])
             for m in moons:
                 m.move()
 
@@ -66,46 +65,48 @@ class runner(adventofcode.runner):
     def solve2(self):
         moons = list(map(lambda m: jupiter_moon(m[0], m[1], m[2]), self.moons))
 
-        states = []
-        for _ in range(0, 300000):
-            for m in moons:
-                for n in moons:
-                    if m != n:
-                        m.apply_gravity(n)
+        period_x = 0
+        period_y = 0
+        period_z = 0
+        counter = 0
+        while period_x == 0 or period_y == 0 or period_z == 0:
+            for i in range(1, len(moons)):
+                for j in range(i):
+                    moons[i].apply_gravity(moons[j])
             for m in moons:
                 m.move()
-            states.append(moons[0].state() + moons[1].state() + moons[2].state() + moons[3].state())
+            counter += 1
 
-        periods = set()
-        for n in range(24):
-            period = self.find_period(states, n)
-            periods.add(period)
-            print("Period for", n, "is", self.find_period(states, n))
+            if not period_x and self.is_start_pos(moons, 0):
+                period_x = counter
+                print("Period x is", period_x)
+            if not period_y and self.is_start_pos(moons, 1):
+                period_y = counter
+                print("Period y is", period_y)
+            if not period_z and self.is_start_pos(moons, 2):
+                period_z = counter
+                print("Period z is", period_z)
 
-        lcm = 1
-        for p in periods:
-            lcm = abs(lcm * p) // math.gcd(lcm, p)
-        return str(lcm)
+        return str(self.lcm(period_x, self.lcm(period_y, period_z)))
 
-    def find_period(self, states, index):
-        for i, s in enumerate(states):
-            if i and states[0][index] == s[index]:
-                found = True
-                for j in range(min(i, len(states) - i)):
-                    if states[j][index] != states[i + j][index]:
-                        found = False
-                        break
-                if found:
-                    return i
-        return -1
+    def lcm(self, a, b):
+        return abs(a * b) // math.gcd(a, b)
+
+    def is_start_pos(self, moons, index):
+        for m in moons:
+            if m.velocity[index] != 0:
+                return False
+            if m.position[index] != m.start_position[index]:
+                return False
+        return True
 
 r = runner()
 
-# r.test('Sample', [
-#     '<x=-1, y=0, z=2>',
-#     '<x=2, y=-10, z=-7>',
-#     '<x=4, y=-8, z=8>',
-#     '<x=3, y=5, z=-1>',
-# ], None, '2772')
+r.test('Sample', [
+    '<x=-1, y=0, z=2>',
+    '<x=2, y=-10, z=-7>',
+    '<x=4, y=-8, z=8>',
+    '<x=3, y=5, z=-1>',
+], None, '2772')
 
 r.run()
