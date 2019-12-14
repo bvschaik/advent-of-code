@@ -30,17 +30,21 @@ class computer:
             modes = code // 100
             self.opcodes[opcode](modes)
 
-    def iterator(self):
+    def iterator(self, input_func = None):
         while self.running:
             code = self.program[self.ip]
             opcode = code % 100
             modes = code // 100
+            if opcode == 3 and input_func and not self.input:
+                input_func(self)
             self.opcodes[opcode](modes)
             if opcode == 4:
                 yield self.output[-1]
 
+    def iterator_triple(self, input_func = None):
+        return zip(*(self.iterator(input_func),) * 3)
+
     def add(self, modes):
-        # print("ADD %d (%d %d %d)" % (self.program[self.ip + 0], self.program[self.ip + 1], self.program[self.ip + 2], self.program[self.ip + 3]))
         val_a = self.get_value(1, modes)
         val_b = self.get_value(2, modes)
         reg_c = self.get_register(3, modes)
@@ -48,7 +52,6 @@ class computer:
         self.ip += 4
 
     def multiply(self, modes):
-        # print("MUL %d (%d %d %d)" % (self.program[self.ip + 0], self.program[self.ip + 1], self.program[self.ip + 2], self.program[self.ip + 3]))
         val_a = self.get_value(1, modes)
         val_b = self.get_value(2, modes)
         reg_c = self.get_register(3, modes)
@@ -56,14 +59,14 @@ class computer:
         self.ip += 4
 
     def read_input(self, modes):
-        # print("IN %d %d" % (self.program[self.ip + 0], self.program[self.ip + 1]))
         reg_a = self.get_register(1, modes)
+        if not self.input:
+            raise AssertionError("Attempting to read input but input is empty?!")
         self.set_value(reg_a, self.input.pop(0))
         self.ip += 2
 
     def write_output(self, modes):
         val = self.get_value(1, modes)
-        # print("OUT %d %d = %d" % (self.program[self.ip + 0], self.program[self.ip + 1], val))
         self.output.append(val)
         self.ip += 2
 
@@ -96,7 +99,6 @@ class computer:
         self.ip += 4
 
     def adjust_relative_base(self, modes):
-        # print("REL += %d" % val_a)
         self.relative_base += self.get_value(1, modes)
         self.ip += 2
 
