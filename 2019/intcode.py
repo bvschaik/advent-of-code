@@ -30,6 +30,16 @@ class computer:
             modes = code // 100
             self.opcodes[opcode](modes)
 
+    def run_until_output(self):
+        while self.running:
+            code = self.program[self.ip]
+            opcode = code % 100
+            modes = code // 100
+            self.opcodes[opcode](modes)
+            if opcode == 4:
+                return self.output[-1]
+        return None
+
     def iterator(self, input_func = None):
         while self.running:
             code = self.program[self.ip]
