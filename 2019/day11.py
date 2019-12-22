@@ -35,7 +35,6 @@ class runner(adventofcode.runner):
         direction = UP
         panels_painted = set()
         for paint, move in zip(*(computer.iterator(),) * 2):
-            #print(position, paint, move)
             tiles[position] = paint
             panels_painted.add(position)
             if move == TURN_LEFT:
@@ -45,6 +44,7 @@ class runner(adventofcode.runner):
             position = (position[0] + DIRECTION_XY[direction][0], position[1] + DIRECTION_XY[direction][1])
             computer.input.append(tiles[position])
 
+        # self.print_tiles(tiles)
         return len(panels_painted)
 
     def solve2(self):
@@ -62,17 +62,19 @@ class runner(adventofcode.runner):
             position = (position[0] + DIRECTION_XY[direction][0], position[1] + DIRECTION_XY[direction][1])
             computer.input.append(tiles[position])
 
+        self.print_tiles(tiles)
+        return 'see above'
+
+    def print_tiles(self, tiles):
         min_x = min(tiles, key = lambda p: p[0])[0]
         max_x = max(tiles, key = lambda p: p[0])[0] + 1
         min_y = min(tiles, key = lambda p: p[1])[1]
         max_y = max(tiles, key = lambda p: p[1])[1] + 1
-        print(min_x, min_y, max_x, max_y)
 
         for y in range(min_y, max_y):
             for x in range(min_x, max_x):
                 print(' ' if tiles[(x, y)] == BLACK else '#', end = '')
             print()
-        return 'see above'
 
 r = runner()
 
