@@ -41,7 +41,7 @@ class runner(adventofcode.runner):
         height = 6
         size = width * height
         layers = [self.data[i:i+150] for i in range(0, len(self.data), size)]
-        print(layers)
+        # print(layers)
 
         for i in range(size):
             val = TRANSPARENT

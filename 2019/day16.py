@@ -49,7 +49,7 @@ class runner(adventofcode.runner):
         data = data[n:]
         self.transform100(data)
         
-        print(data[:8])
+        # print(data[:8])
         return ''.join(map(str, data[:8]))
 
     def transform100(self, data):
