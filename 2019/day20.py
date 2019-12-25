@@ -17,7 +17,9 @@ class runner(adventofcode.runner):
 
     def solve1(self):
         distances = self.get_distance_graph(self.maze)
-        return str(self.shortest_path(distances, 'AA', 'ZZ'))
+        for k, v in distances.items():
+            print(k, v)
+        return str(self.shortest_path(distances, ('AA', False), ('ZZ', False)))
         
     def shortest_path(self, distances, start_node, end_node):
         shortest_paths = dict()
@@ -31,9 +33,9 @@ class runner(adventofcode.runner):
                 continue
             shortest_paths[to_node] = dist
             for n, dist in distances[to_node].items():
-                heapq.heappush(h, (dist + 1 + shortest_paths[to_node], n))
+                heapq.heappush(h, (dist + shortest_paths[to_node], n))
 
-        return shortest_paths[end_node] - 1 # Subtract portal cost from final node
+        return shortest_paths[end_node] # - 1 # Subtract portal cost from final node
 
     def get_distance_graph(self, maze):
         nodes = defaultdict(list)
@@ -43,15 +45,19 @@ class runner(adventofcode.runner):
                     if x + 1 < len(row) and is_az(row[x + 1]):
                         label = c + row[x + 1]
                         if x + 2 < len(row) and row[x + 2] == '.':
-                            nodes[label].append((x + 2, y))
+                            is_inner = x > 0
+                            nodes[(label, is_inner)].append((x + 2, y))
                         elif x > 0 and row[x - 1] == '.':
-                            nodes[label].append((x - 1, y))
+                            is_inner = x + 2 < len(row)
+                            nodes[(label, is_inner)].append((x - 1, y))
                     elif y + 1 < len(maze) and is_az(maze[y + 1][x]):
                         label = c + maze[y + 1][x]
                         if y + 2 < len(maze) and maze[y + 2][x] == '.':
-                            nodes[label].append((x, y + 2))
+                            is_inner = y > 0
+                            nodes[(label, is_inner)].append((x, y + 2))
                         elif y > 0 and maze[y - 1][x] == '.':
-                            nodes[label].append((x, y - 1))
+                            is_inner = y + 2 < len(maze)
+                            nodes[(label, is_inner)].append((x, y - 1))
 
         node_positions = dict()
         for n, positions in nodes.items():
@@ -59,8 +65,11 @@ class runner(adventofcode.runner):
                 node_positions[p] = n
 
         distances = defaultdict(dict)
-        for p, label in node_positions.items():
-            self.bfs(maze, node_positions, distances, label, p)
+        for p, node_id in node_positions.items():
+            self.bfs(maze, node_positions, distances, node_id, p)
+            portal = (node_id[0], not node_id[1])
+            if portal in nodes:
+                distances[node_id][portal] = 1
         return distances
 
     def bfs(self, maze, nodes, distances, label, start):
