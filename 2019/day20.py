@@ -17,11 +17,11 @@ class runner(adventofcode.runner):
 
     def solve1(self):
         distances = self.get_distance_graph(self.maze)
-        for k, v in distances.items():
-            print(k, v)
-        return str(self.shortest_path(distances, ('AA', False), ('ZZ', False)))
-        
-    def shortest_path(self, distances, start_node, end_node):
+        return str(self.shortest_path(distances, 'AA', 'ZZ'))
+
+    def shortest_path(self, distances, start, end):
+        start_node = (start, False)
+        end_node = (end, False)
         shortest_paths = dict()
 
         h = []
@@ -35,7 +35,37 @@ class runner(adventofcode.runner):
             for n, dist in distances[to_node].items():
                 heapq.heappush(h, (dist + shortest_paths[to_node], n))
 
-        return shortest_paths[end_node] # - 1 # Subtract portal cost from final node
+        return shortest_paths[end_node]
+
+    def solve2(self):
+        distances = self.get_distance_graph(self.maze)
+        return str(self.shortest_path_levels(distances, 'AA', 'ZZ'))
+
+    def shortest_path_levels(self, distances, start, end):
+        start_node = (start, False)
+        end_node = (end, False)
+        shortest_paths = dict()
+
+        h = []
+        heapq.heappush(h, (0, start_node, 0))
+
+        while h:
+            (dist, to_node, level) = heapq.heappop(h)
+            key = (to_node, level)
+            if key in shortest_paths:
+                continue
+            shortest_paths[key] = dist
+            if to_node == end_node and level == 0:
+                return dist
+            for n, dist in distances[to_node].items():
+                if n[0] == to_node[0]:
+                    new_level = level - 1 if n[1] else level + 1
+                    if new_level >= 0:
+                        heapq.heappush(h, (dist + shortest_paths[key], n, new_level))
+                else:
+                    heapq.heappush(h, (dist + shortest_paths[key], n, level))
+
+        return shortest_paths[(end_node, 0)]
 
     def get_distance_graph(self, maze):
         nodes = defaultdict(list)
@@ -95,9 +125,6 @@ class runner(adventofcode.runner):
                     new_queue.append((x+1, y))
             queue = new_queue
             distance += 1
-
-    def solve2(self):
-        pass
 
 r = runner()
 
@@ -162,5 +189,45 @@ r.test('Sample 2', [
     '           B   J   C               ',
     '           U   P   P               ',
 ], '58')
+
+r.test('Sample 2.2', [
+    '             Z L X W       C                 ',
+    '             Z P Q B       K                 ',
+    '  ###########.#.#.#.#######.###############  ',
+    '  #...#.......#.#.......#.#.......#.#.#...#  ',
+    '  ###.#.#.#.#.#.#.#.###.#.#.#######.#.#.###  ',
+    '  #.#...#.#.#...#.#.#...#...#...#.#.......#  ',
+    '  #.###.#######.###.###.#.###.###.#.#######  ',
+    '  #...#.......#.#...#...#.............#...#  ',
+    '  #.#########.#######.#.#######.#######.###  ',
+    '  #...#.#    F       R I       Z    #.#.#.#  ',
+    '  #.###.#    D       E C       H    #.#.#.#  ',
+    '  #.#...#                           #...#.#  ',
+    '  #.###.#                           #.###.#  ',
+    '  #.#....OA                       WB..#.#..ZH',
+    '  #.###.#                           #.#.#.#  ',
+    'CJ......#                           #.....#  ',
+    '  #######                           #######  ',
+    '  #.#....CK                         #......IC',
+    '  #.###.#                           #.###.#  ',
+    '  #.....#                           #...#.#  ',
+    '  ###.###                           #.#.#.#  ',
+    'XF....#.#                         RF..#.#.#  ',
+    '  #####.#                           #######  ',
+    '  #......CJ                       NM..#...#  ',
+    '  ###.#.#                           #.###.#  ',
+    'RE....#.#                           #......RF',
+    '  ###.###        X   X       L      #.#.#.#  ',
+    '  #.....#        F   Q       P      #.#.#.#  ',
+    '  ###.###########.###.#######.#########.###  ',
+    '  #.....#...#.....#.......#...#.....#.#...#  ',
+    '  #####.#.###.#######.#######.###.###.#.#.#  ',
+    '  #.......#.......#.#.#.#.#...#...#...#.#.#  ',
+    '  #####.###.#####.#.#.#.#.###.###.#.###.###  ',
+    '  #.......#.....#.#...#...............#...#  ',
+    '  #############.#.#.###.###################  ',
+    '               A O F   N                     ',
+    '               A A D   M                     ',
+], None, '396')
 
 r.run()
