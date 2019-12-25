@@ -151,3 +151,33 @@ class computer:
 
     def set_value(self, index, val):
         self.program[index] = val
+
+LF = 10
+
+class ascii_computer:
+    def __init__(self, program):
+        self.intcode_computer = computer(program)
+        self.output = self.intcode_computer.output
+
+    def lines(self):
+        while self.intcode_computer.running:
+            yield self.read_line()
+
+    def read_line(self):
+        output = []
+        byte = None
+        while byte != LF and self.intcode_computer.running:
+            byte = self.intcode_computer.run_until_output()
+            if byte is not None:
+                output.append(byte)
+        if byte == LF:
+            output.pop()
+        return ''.join(map(chr, output))
+
+    def write_line(self, line):
+        for c in map(ord, line):
+            self.intcode_computer.input.append(c)
+        self.intcode_computer.input.append(LF)
+
+    def run(self):
+        self.intcode_computer.run()

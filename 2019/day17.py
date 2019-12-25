@@ -22,9 +22,12 @@ class runner(adventofcode.runner):
         self.data = list(map(int, line.split(',')))
 
     def solve1(self):
-        computer = intcode.computer(self.data)
-        computer.run()
-        area = ''.join(map(chr, computer.output)).rstrip().splitlines()
+        computer = intcode.ascii_computer(self.data)
+        area = []
+        for line in computer.lines():
+            if not line:
+                break
+            area.append(line)
 
         total = 0
         for y in range(1, len(area) - 1):
@@ -37,19 +40,13 @@ class runner(adventofcode.runner):
 
     def solve2(self):
         self.data[0] = 2
-        computer = intcode.computer(self.data)
+        computer = intcode.ascii_computer(self.data)
 
         area = []
-        row = []
-        for ic in computer.iterator():
-            c = chr(ic)
-            if c == '\n':
-                if not row:
-                    break
-                area.append(row)
-                row = []
-            else:
-                row.append(c)
+        for line in computer.lines():
+            if not line:
+                break
+            area.append(line)
 
         (x, y, direction) = self.find_robot(area)
 
@@ -60,8 +57,8 @@ class runner(adventofcode.runner):
             if direction != NONE:
                 commands.append(command)
 
-        input_data = list(map(ord, '\n'.join(self.split_program(commands)) + '\n'))
-        computer.input = input_data
+        for cmd in self.split_program(commands):
+            computer.write_line(cmd)
         computer.run()
         return str(computer.output[-1])
 
