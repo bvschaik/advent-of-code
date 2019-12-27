@@ -168,7 +168,7 @@ class ascii_computer:
         byte = None
         while byte != LF and self.intcode_computer.running:
             byte = self.intcode_computer.run_until_output()
-            if byte is not None:
+            if byte is not None and byte >= 0 and byte < 128:
                 output.append(byte)
         if byte == LF:
             output.pop()
