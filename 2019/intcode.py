@@ -193,3 +193,14 @@ class ascii_computer:
 
     def run(self):
         self.intcode_computer.run()
+
+    def run_interactive(self):
+        for c in self.intcode_computer.iterator(self.get_input):
+            if c == LF:
+                print()
+            else:
+                print(chr(c), end = '')
+
+    def get_input(self, computer):
+        data = input('> ')
+        self.write_line(data)
