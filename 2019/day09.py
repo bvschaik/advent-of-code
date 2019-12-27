@@ -1,6 +1,5 @@
 import adventofcode
 import intcode
-from collections import defaultdict
 
 class runner(adventofcode.runner):
     def __init__(self):

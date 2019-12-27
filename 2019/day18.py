@@ -1,5 +1,4 @@
 import adventofcode
-import string
 
 class runner(adventofcode.runner):
     def __init__(self):

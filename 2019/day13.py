@@ -1,6 +1,5 @@
 import adventofcode
 import intcode
-from collections import defaultdict
 
 EMPTY = 0
 WALL = 1

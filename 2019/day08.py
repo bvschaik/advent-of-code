@@ -1,5 +1,4 @@
 import adventofcode
-from collections import defaultdict
 
 BLACK = '0'
 WHITE = '1'

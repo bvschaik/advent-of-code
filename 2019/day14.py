@@ -1,5 +1,4 @@
 import adventofcode
-import math
 import re
 
 ORE = 'ORE'

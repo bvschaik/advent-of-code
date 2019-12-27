@@ -1,6 +1,5 @@
 import adventofcode
 import intcode
-from collections import defaultdict
 
 NORTH = 1
 SOUTH = 2

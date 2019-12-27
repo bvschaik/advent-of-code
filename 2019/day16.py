@@ -1,6 +1,4 @@
 import adventofcode
-import math
-import re
 
 class runner(adventofcode.runner):
     def __init__(self):
