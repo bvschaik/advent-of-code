@@ -1,5 +1,4 @@
 import adventofcode
-import re
 
 class policy:
     def __init__(self, first, second, letter, password):
@@ -28,13 +27,6 @@ class runner(adventofcode.runner):
         self.map.append(line)
 
     def solve1(self):
-        return str(self.trees_on_slope(3))
-        trees = 0
-        for y in range(0, len(self.map)):
-            line = self.map[y]
-            x = (y * 3) % len(line)
-            if (line[x] == '#'):
-                trees += 1
         return str(self.trees_on_slope(3))
 
     def solve2(self):

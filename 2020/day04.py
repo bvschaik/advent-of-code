@@ -86,6 +86,6 @@ r.test('Sample 1', [
     '',
     'hcl:#cfa07d eyr:2025 pid:166559648',
     'iyr:2011 ecl:brn hgt:59in',
-], '2', '1')
+], '2')
 
 r.run()
