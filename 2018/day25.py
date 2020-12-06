@@ -36,9 +36,8 @@ class day25(runner):
                 constellations[constellations_in_range[0]].add(s)
             else: # Merge multiple constellations
                 new_constellation = {s}
-                for c_index in constellations_in_range:
-                    new_constellation |= constellations[c_index]
                 for c_index in reversed(constellations_in_range):
+                    new_constellation |= constellations[c_index]
                     del constellations[c_index]
                 constellations.append(new_constellation)
 
