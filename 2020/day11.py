@@ -13,6 +13,7 @@ class runner(adventofcode.runner):
     def solve1(self):
         seatmap = self.create_seatmap()
         occupieds = [[0 for x in range(len(seatmap[0]))] for y in range(len(seatmap))]
+        adjacents = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
 
         height = len(seatmap) - 1
         width = len(seatmap[0]) - 1
@@ -20,24 +21,26 @@ class runner(adventofcode.runner):
         rounds = 0
         while has_changes:
             rounds += 1
-            has_changes = False
-            self.update_occupation_adjacent(seatmap, occupieds)
+            changes = []
             for y in range(1, height):
                 for x in range(1, width):
                     if seatmap[y][x] != '.':
                         if seatmap[y][x] == 'L' and occupieds[y][x] == 0:
-                            has_changes = True
                             seatmap[y][x] = '#'
+                            changes.append((x, y, 1))
                         elif seatmap[y][x] == '#' and occupieds[y][x] >= 4:
-                            has_changes = True
                             seatmap[y][x] = 'L'
+                            changes.append((x, y, -1))
+            for (x, y, change) in changes:
+                for (dx, dy) in adjacents:
+                    occupieds[y + dy][x + dx] += change
+            has_changes = len(changes) > 0
         # print("equilibrium after %d rounds" % rounds)
         return str(sum(map(lambda r: sum(map(lambda s: s == '#', r)), seatmap)))
 
     def solve2(self):
         seatmap = self.create_seatmap()
         occupieds = [[0 for x in range(len(seatmap[0]))] for y in range(len(seatmap))]
-        new_occupieds = [[0 for x in range(len(seatmap[0]))] for y in range(len(seatmap))]
         adjacents = [[[] for x in range(len(seatmap[0]))] for y in range(len(seatmap))]
         self.find_visible_adjacents(seatmap, adjacents)
 
@@ -47,40 +50,22 @@ class runner(adventofcode.runner):
         rounds = 0
         while has_changes:
             rounds += 1
-            has_changes = False
-            for y in range(len(occupieds)):
-                for x in range(len(occupieds[y])):
-                    new_occupieds[y][x] = occupieds[y][x]
+            changes = []
             for y in range(1, height):
                 for x in range(1, width):
                     if seatmap[y][x] != '.':
                         if seatmap[y][x] == 'L' and occupieds[y][x] == 0:
-                            has_changes = True
                             seatmap[y][x] = '#'
-                            for (ax, ay) in adjacents[y][x]:
-                                new_occupieds[ay][ax] += 1
+                            changes.append((x, y, 1))
                         elif seatmap[y][x] == '#' and occupieds[y][x] >= 5:
-                            has_changes = True
                             seatmap[y][x] = 'L'
-                            for (ax, ay) in adjacents[y][x]:
-                                new_occupieds[ay][ax] -= 1
-            tmp = occupieds
-            occupieds = new_occupieds
-            new_occupieds = tmp
+                            changes.append((x, y, -1))
+            for (x, y, change) in changes:
+                for (ax, ay) in adjacents[y][x]:
+                    occupieds[ay][ax] += change
+            has_changes = len(changes) > 0
         # print("equilibrium after %d rounds" % rounds)
         return str(sum(map(lambda r: sum(map(lambda s: s == '#', r)), seatmap)))
-
-    def update_occupation_adjacent(self, seatmap, occupieds):
-        for y in range(len(seatmap)):
-            for x in range(len(seatmap[y])):
-                occupieds[y][x] = 0
-
-        adjacent = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
-        for y in range(1, len(seatmap) - 1):
-            for x in range(1, len(seatmap[y]) - 1):
-                if seatmap[y][x] == '#':
-                    for (dx, dy) in adjacent:
-                        occupieds[y + dy][x + dx] += 1
 
     def find_visible_adjacents(self, seatmap, adjacents):
         directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
