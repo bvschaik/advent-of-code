@@ -37,6 +37,7 @@ class runner(adventofcode.runner):
     def solve2(self):
         seatmap = self.create_seatmap()
         occupieds = [[0 for x in range(len(seatmap[0]))] for y in range(len(seatmap))]
+        new_occupieds = [[0 for x in range(len(seatmap[0]))] for y in range(len(seatmap))]
         adjacents = [[[] for x in range(len(seatmap[0]))] for y in range(len(seatmap))]
         self.find_visible_adjacents(seatmap, adjacents)
 
@@ -47,16 +48,25 @@ class runner(adventofcode.runner):
         while has_changes:
             rounds += 1
             has_changes = False
-            self.update_occupation_visible(seatmap, occupieds, adjacents)
+            for y in range(len(occupieds)):
+                for x in range(len(occupieds[y])):
+                    new_occupieds[y][x] = occupieds[y][x]
             for y in range(1, height):
                 for x in range(1, width):
                     if seatmap[y][x] != '.':
                         if seatmap[y][x] == 'L' and occupieds[y][x] == 0:
                             has_changes = True
                             seatmap[y][x] = '#'
+                            for (ax, ay) in adjacents[y][x]:
+                                new_occupieds[ay][ax] += 1
                         elif seatmap[y][x] == '#' and occupieds[y][x] >= 5:
                             has_changes = True
                             seatmap[y][x] = 'L'
+                            for (ax, ay) in adjacents[y][x]:
+                                new_occupieds[ay][ax] -= 1
+            tmp = occupieds
+            occupieds = new_occupieds
+            new_occupieds = tmp
         # print("equilibrium after %d rounds" % rounds)
         return str(sum(map(lambda r: sum(map(lambda s: s == '#', r)), seatmap)))
 
@@ -72,17 +82,6 @@ class runner(adventofcode.runner):
                     for (dx, dy) in adjacent:
                         occupieds[y + dy][x + dx] += 1
 
-    def update_occupation_visible(self, seatmap, occupieds, adjacents):
-        for y in range(len(seatmap)):
-            for x in range(len(seatmap[y])):
-                occupieds[y][x] = 0
-
-        for y in range(1, len(seatmap) - 1):
-            for x in range(1, len(seatmap[y]) - 1):
-                for (nx, ny) in adjacents[y][x]:
-                    if seatmap[ny][nx] == '#':
-                        occupieds[y][x] += 1
-
     def find_visible_adjacents(self, seatmap, adjacents):
         directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
         for y in range(1, len(seatmap) - 1):
@@ -95,15 +94,6 @@ class runner(adventofcode.runner):
                         ny += dy
                     if seatmap[ny][nx] == 'L':
                         adjacents[y][x].append((nx, ny))
-
-    def update_direction(self, seatmap, occupieds, x, y, dx, dy):
-        nx = x + dx
-        ny = y + dy
-        while seatmap[ny][nx] == '.':
-            nx += dx
-            ny += dy
-        if seatmap[ny][nx] == '#':
-            occupieds[y][x] += 1
 
     def create_seatmap(self):
         empty = [' '] * (len(self.seats[0]) + 2)
