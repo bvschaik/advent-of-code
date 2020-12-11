@@ -24,13 +24,14 @@ class runner(adventofcode.runner):
             changes = []
             for y in range(1, height):
                 for x in range(1, width):
-                    if seatmap[y][x] != '.':
-                        if seatmap[y][x] == 'L' and occupieds[y][x] == 0:
-                            seatmap[y][x] = '#'
-                            changes.append((x, y, 1))
-                        elif seatmap[y][x] == '#' and occupieds[y][x] >= 4:
-                            seatmap[y][x] = 'L'
-                            changes.append((x, y, -1))
+                    seat = seatmap[y][x]
+                    occupied = occupieds[y][x]
+                    if seat == 'L' and occupied == 0:
+                        seatmap[y][x] = '#'
+                        changes.append((x, y, 1))
+                    elif seat == '#' and occupied >= 4:
+                        seatmap[y][x] = 'L'
+                        changes.append((x, y, -1))
             for (x, y, change) in changes:
                 for (dx, dy) in adjacents:
                     occupieds[y + dy][x + dx] += change
@@ -53,13 +54,14 @@ class runner(adventofcode.runner):
             changes = []
             for y in range(1, height):
                 for x in range(1, width):
-                    if seatmap[y][x] != '.':
-                        if seatmap[y][x] == 'L' and occupieds[y][x] == 0:
-                            seatmap[y][x] = '#'
-                            changes.append((x, y, 1))
-                        elif seatmap[y][x] == '#' and occupieds[y][x] >= 5:
-                            seatmap[y][x] = 'L'
-                            changes.append((x, y, -1))
+                    seat = seatmap[y][x]
+                    occupied = occupieds[y][x]
+                    if seat == 'L' and occupied == 0:
+                        seatmap[y][x] = '#'
+                        changes.append((x, y, 1))
+                    elif seat == '#' and occupied >= 5:
+                        seatmap[y][x] = 'L'
+                        changes.append((x, y, -1))
             for (x, y, change) in changes:
                 for (ax, ay) in adjacents[y][x]:
                     occupieds[ay][ax] += change
