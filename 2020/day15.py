@@ -12,40 +12,27 @@ class runner(adventofcode.runner):
         self.numbers = list(map(int, line.split(',')))
 
     def solve1(self):
-        index = dict()
-        for i, n in enumerate(self.numbers):
-            index[n] = [i]
-
-        last = self.numbers[-1]
-        for i in range(len(self.numbers), 2020):
-            if last not in index or len(index[last]) == 1:
-                last = 0
-            else:
-                occurrences = index[last]
-                last = occurrences[-1] - occurrences[-2]
-            if last in index:
-                index[last].append(i)
-            else:
-                index[last] = [i]
-        return str(last)
+        return str(self.get_nth_number(2020))
 
     def solve2(self):
-        index = dict()
+        return str(self.get_nth_number(30000000))
+
+    def get_nth_number(self, max_n):
+        index = [-1] * max_n
         # Assumption: no duplicates in initial set
         for i, n in enumerate(self.numbers):
             index[n] = i
 
         last_index = len(self.numbers) - 1
         last_number = self.numbers[-1]
-        for i in range(len(self.numbers), 30000000):
+        for i in range(len(self.numbers), max_n):
             last_number = index[last_number] - last_index
-            if last_number in index:
+            if index[last_number] >= 0:
                 last_index = index[last_number]
             else:
                 last_index = i
             index[last_number] = i
-        return str(last_number)
-        # 30000000
+        return last_number
 
 r = runner()
 
