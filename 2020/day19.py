@@ -25,20 +25,39 @@ class runner(adventofcode.runner):
 
     def solve1(self):
         self.cache = dict()
-        valids = self.find_valid(0)
-        return str(sum(map(lambda m: m in valids, self.messages)))
+        # Knowledge:
+        # - 0 is always a concatenation of multiple fixed-length options
+        # - all valid words and parts of the words have the same length
+        parts = list(map(lambda n: self.find_valid(n), self.rules[0][0]))
+        return str(sum(map(lambda m: self.is_valid_part(m, parts), self.messages)))
+
+    def is_valid_part(self, word, parts):
+        offset = 0
+        for length, words in parts:
+            if len(word) < offset + length:
+                return False
+            if word[offset:offset+length] not in words:
+                return False
+            offset += length
+        if len(word) > offset:
+            return False
+        return True
 
     def find_valid(self, index):
         if index in self.cache:
             return self.cache[index]
         valids = set()
+        length = 0
         for option in self.rules[index]:
+            length = 0
             if len(option) == 1 and option[0] not in self.rules:
+                length += 1
                 valids.add(option[0])
                 continue
             option_valids = set()
             for n in option:
-                n_valids = self.find_valid(n)
+                (n_len, n_valids) = self.find_valid(n)
+                length += n_len
                 if option_valids:
                     new_valids = set()
                     for a in option_valids:
@@ -48,14 +67,14 @@ class runner(adventofcode.runner):
                 else:
                     option_valids = n_valids
             valids.update(option_valids)
-        self.cache[index] = valids
-        return valids
+        self.cache[index] = (length, valids)
+        return (length, valids)
 
     def solve2(self):
         return str(sum(map(lambda m: self.is_valid_recursive(m), self.messages)))
 
     def is_valid_recursive(self, m):
-        # knowledge:
+        # Knowledge:
         # 0 rule is always: 0: 8 11
         # 8 rule becomes 8: 42 | 42 8 -> rule 42 m times (n >= 1)
         # 11 rule becomes: 11: 42 31 | 42 11 31 -> rule 42 and 31 n times
@@ -67,12 +86,12 @@ class runner(adventofcode.runner):
         match42 = 0
         match31 = 0
         for c in chunks:
-            if c in self.cache[42]:
+            if c in self.cache[42][1]:
                 match42 += 1
             else:
                 break
         for c in reversed(chunks):
-            if c in self.cache[31]:
+            if c in self.cache[31][1]:
                 match31 += 1
             else:
                 break
