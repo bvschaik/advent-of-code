@@ -7,10 +7,13 @@ class runner:
 
     def run(self):
         self.reset()
-        filepath = str.format("input/%02d.txt" % (self.day))
+        if len(sys.argv) > 1 and sys.argv[1] != 'skip-test':
+            filepath = sys.argv[1]
+        else:
+            filepath = str.format("input/%02d.txt" % (self.day))
         with open(filepath) as fp:
             for line in fp:
-                self.input_line(line.rstrip())
+                self.input_line(line.rstrip('\r\n'))
         print("Day %d:" % (self.day))
         start = time.time()
         result1 = self.solve1()
