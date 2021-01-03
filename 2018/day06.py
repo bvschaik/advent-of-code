@@ -1,5 +1,5 @@
+import adventofcode
 import re
-from runner import runner
 
 class point:
     def __init__(self, x, y):
@@ -17,15 +17,17 @@ class area:
     def __repr__(self):
         return str.format("area(%d, %s)" % (self.area, self.infinite))
 
-class day06(runner):
-    def __init__(self, part2_threshold = 10000):
-        self.points = []
+class runner(adventofcode.runner):
+    def __init__(self):
+        super().__init__(6)
+
+    def configure(self, part2_threshold = 10000):
         self.part2_threshold = part2_threshold
 
-    def day(self):
-        return 6
-    
-    def input(self, line):
+    def reset(self):
+        self.points = []
+
+    def input_line(self, line):
         m = re.match(r'(\d+), (\d+)', line)
         self.points.append(point(int(m.group(1)), int(m.group(2))))
 
@@ -73,7 +75,10 @@ class day06(runner):
                 
         return str(num_points_in_region)
 
-day06(32).test('Sample input', [
+r = runner()
+
+r.configure(part2_threshold = 32)
+r.test('Sample input', [
     '1, 1',
     '1, 6',
     '8, 3',
@@ -82,4 +87,5 @@ day06(32).test('Sample input', [
     '8, 9',
 ], '17', '16')
 
-day06().solve()
+r.configure()
+r.run()

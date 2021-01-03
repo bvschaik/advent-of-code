@@ -1,6 +1,6 @@
+import adventofcode
 from collections import defaultdict
 from collections import deque
-from runner import runner
 
 class node:
     def __init__(self, x, y):
@@ -18,14 +18,14 @@ class node_dict(defaultdict):
         self[key] = val
         return val
 
-class day20(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(20)
+
+    def reset(self):
         self.regex = ''
 
-    def day(self):
-        return 20
-
-    def input(self, line):
+    def input_line(self, line):
         self.regex = line
 
     def solve1(self):
@@ -94,9 +94,10 @@ class day20(runner):
                     nodes_to_process.append(n)
         return max_distance
 
-day20().test('Sample input', ['^WNE$'], '3')
-day20().test('Recursion', ['^ENWWW(NEEE|SSE(EE|N))$'], '10')
-day20().test('Extra sample 1', ['^ESSWWN(E|NNENN(EESS(WNSE|)SSS|WWWSSSSE(SW|NNNE)))$'], '23')
-day20().test('Extra sample 2', ['^WSSEESWWWNW(S|NENNEEEENN(ESSSSW(NWSW|SSEN)|WSWWN(E|WWS(E|SS))))$'], '31')
+r = runner()
+r.test('Sample input', ['^WNE$'], '3')
+r.test('Recursion', ['^ENWWW(NEEE|SSE(EE|N))$'], '10')
+r.test('Extra sample 1', ['^ESSWWN(E|NNENN(EESS(WNSE|)SSS|WWWSSSSE(SW|NNNE)))$'], '23')
+r.test('Extra sample 2', ['^WSSEESWWWNW(S|NENNEEEENN(ESSSSW(NWSW|SSEN)|WSWWN(E|WWS(E|SS))))$'], '31')
 
-day20().solve()
+r.run()

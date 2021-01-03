@@ -1,14 +1,14 @@
+import adventofcode
 from collections import defaultdict
-from runner import runner
 
-class day02(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(2)
+
+    def reset(self):
         self.inputs = []
 
-    def day(self):
-        return 2
-    
-    def input(self, line):
+    def input_line(self, line):
         self.inputs.append(line)
 
     def solve1(self):
@@ -44,4 +44,5 @@ class day02(runner):
 
         raise AssertionError("Should not happen")
 
-day02().solve()
+r = runner()
+r.run()

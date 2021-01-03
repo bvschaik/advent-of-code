@@ -1,6 +1,6 @@
+import adventofcode
 import re
 import heapq
-from runner import runner
 
 class step:
     def __init__(self, id):
@@ -32,16 +32,18 @@ class worker:
     def __init__(self):
         self.available_at = 0
 
-class day07(runner):
-    def __init__(self, num_workers = 5, base_task_duration = 61):
-        self.steps = [None] * 26
+class runner(adventofcode.runner):
+    def __init__(self):
+        super().__init__(7)
+
+    def configure(self, num_workers = 5, base_task_duration = 61):
         self.base_task_duration = base_task_duration
         self.workers = [worker() for _ in range(num_workers)]
 
-    def day(self):
-        return 7
-    
-    def input(self, line):
+    def reset(self):
+        self.steps = [None] * 26
+
+    def input_line(self, line):
         m = re.match(r'Step ([A-Z]) must be finished before step ([A-Z]) can begin.', line)
         from_step = self.get_step(m.group(1))
         to_step = self.get_step(m.group(2))
@@ -95,7 +97,11 @@ class day07(runner):
     def next_available_worker(self):
         return min(self.workers, key = lambda w: w.available_at)
 
-day07(num_workers = 2, base_task_duration = 1).test('Sample input', [
+r = runner()
+
+# r.configure(2, 61)
+r.configure(num_workers = 2, base_task_duration = 1)
+r.test('Sample input', [
     'Step C must be finished before step A can begin.',
     'Step C must be finished before step F can begin.',
     'Step A must be finished before step B can begin.',
@@ -105,4 +111,5 @@ day07(num_workers = 2, base_task_duration = 1).test('Sample input', [
     'Step F must be finished before step E can begin.'
 ], 'CABDFE', '15')
 
-day07().solve()
+r.configure()
+r.run()

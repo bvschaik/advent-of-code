@@ -1,5 +1,5 @@
+import adventofcode
 import re
-from runner import runner
 from collections import defaultdict
 
 class plant_configuration:
@@ -39,16 +39,15 @@ class plant_configuration:
 def dot():
     return '.'
 
-class day12(runner):
-
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(12)
+
+    def reset(self):
         self.state = []
         self.rules = defaultdict(dot)
 
-    def day(self):
-        return 12
-
-    def input(self, line):
+    def input_line(self, line):
         m = re.match(r"initial state: ([\.#]+)", line)
         if m:
             self.state = m.group(1)
@@ -84,7 +83,8 @@ class day12(runner):
             generation += 1
             working_state = working_state.next_generation(self.rules)
 
-day12().test('Sample input', [
+r = runner()
+r.test('Sample input', [
     'initial state: #..#.#..##......###...###',
     '...## => #',
     '..#.. => #',
@@ -102,4 +102,4 @@ day12().test('Sample input', [
     '####. => #',
 ], '325')
 
-day12().solve()
+r.run()

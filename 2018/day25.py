@@ -1,5 +1,5 @@
+import adventofcode
 import re
-from runner import runner
 
 class star_point:
     def __init__(self, a, b, c, d):
@@ -11,14 +11,14 @@ class star_point:
     def close_to(self, other):
         return abs(self.a - other.a) + abs(self.b - other.b) + abs(self.c - other.c) + abs(self.d - other.d) <= 3
 
-class day25(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(25)
+
+    def reset(self):
         self.stars = []
 
-    def day(self):
-        return 25
-
-    def input(self, line):
+    def input_line(self, line):
         m = re.match(r'(-?\d+),(-?\d+),(-?\d+),(-?\d+)', line)
         self.stars.append(star_point(int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4))))
 
@@ -46,8 +46,8 @@ class day25(runner):
     def solve2(self):
         pass
 
-
-day25().test('Sample input', [
+r = runner()
+r.test('Sample input', [
     '0,0,0,0',
     '3,0,0,0',
     '0,3,0,0',
@@ -58,7 +58,7 @@ day25().test('Sample input', [
     '12,0,0,0',
 ], '2')
 
-day25().test('Sample input 3', [
+r.test('Sample input 3', [
     '1,-1,0,1',
     '2,0,-1,0',
     '3,2,-1,0',
@@ -71,4 +71,4 @@ day25().test('Sample input 3', [
     '3,2,0,2',
 ], '3')
 
-day25().solve()
+r.run()

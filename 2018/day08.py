@@ -1,13 +1,13 @@
-from runner import runner
+import adventofcode
 
-class day08(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(8)
+
+    def reset(self):
         self.bytes = []
 
-    def day(self):
-        return 8
-    
-    def input(self, line):
+    def input_line(self, line):
         self.bytes = [int(x) for x in line.split(" ")]
 
     def solve1(self):
@@ -48,6 +48,7 @@ class day08(runner):
                     parent_value += child_values[child]
             return (parent_value, index + num_meta)
 
-day08().test('Sample input', ['2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2'], '138', '66')
+r = runner()
+r.test('Sample input', ['2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2'], '138', '66')
 
-day08().solve()
+r.run()

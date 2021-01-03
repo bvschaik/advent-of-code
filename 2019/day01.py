@@ -10,7 +10,6 @@ def fuel_recursive(amount):
 class runner(adventofcode.runner):
     def __init__(self):
         super().__init__(1)
-        self.reset()
 
     def reset(self):
         self.masses = []

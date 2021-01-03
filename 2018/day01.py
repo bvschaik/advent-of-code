@@ -1,14 +1,14 @@
+import adventofcode
 from collections import defaultdict
-from runner import runner
 
-class day01(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(1)
+
+    def reset(self):
         self.inputs = []
 
-    def day(self):
-        return 1
-    
-    def input(self, line):
+    def input_line(self, line):
         self.inputs.append(int(line))
 
     def solve1(self):
@@ -58,8 +58,10 @@ class day01(runner):
                         min_value = target
         return str(min_value)
 
-day01().test('Zero frequency', ['1', '-1'], '0', '0')
-day01().test('Zero frequency with same freq in initial set', ['1', '1', '-1', '-1'], '0', '1')
-day01().test('Same frequency within initial set', ['1', '1', '-1'], '1', '1')
+r = runner()
 
-day01().solve()
+r.test('Zero frequency', ['1', '-1'], '0', '0')
+r.test('Zero frequency with same freq in initial set', ['1', '1', '-1', '-1'], '0', '1')
+r.test('Same frequency within initial set', ['1', '1', '-1'], '1', '1')
+
+r.run()

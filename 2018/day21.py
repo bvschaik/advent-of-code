@@ -1,5 +1,5 @@
+import adventofcode
 import re
-from runner import runner
 
 def exec_addr(a, b, c, registers):
     registers[c] = registers[a] + registers[b]
@@ -73,15 +73,15 @@ instructions = {
     'div256': exec_div256
 }
 
-class day21(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(21)
+
+    def reset(self):
         self.ip = 0
         self.program = []
 
-    def day(self):
-        return 21
-
-    def input(self, line):
+    def input_line(self, line):
         if line.startswith("#ip"):
             self.ip = int(line[4:])
         else:
@@ -162,4 +162,5 @@ class day21(runner):
                 return False
         return True
 
-day21().solve()
+r = runner()
+r.run()

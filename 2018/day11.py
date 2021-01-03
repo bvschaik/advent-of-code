@@ -1,13 +1,13 @@
-from runner import runner
+import adventofcode
 
-class day11(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(11)
+
+    def reset(self):
         self.serial = 0
 
-    def day(self):
-        return 11
-
-    def input(self, line):
+    def input_line(self, line):
         self.serial = int(line) % 1000
 
     def solve1(self):
@@ -83,8 +83,8 @@ class day11(runner):
         power = int((power % 1000) / 100) - 5 # you end up with a number between -5 and 4
         return power
 
+r = runner()
+r.test('Sample input', ['18'], '33,45', '90,269,16')
+# r.test('Sample input 2', ['42'], '21,61')
 
-day11().test('Sample input', ['18'], '33,45', '90,269,16')
-#day11().test('Sample input 2', ['42'], '21,61')
-
-day11().solve()
+r.run()

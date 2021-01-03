@@ -1,6 +1,6 @@
+import adventofcode
 import re
 import heapq
-from runner import runner
 
 infinity = 1000000000
 
@@ -95,15 +95,15 @@ class node:
     def __repr__(self):
         return str(self.key)
 
-class day22(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(22)
+
+    def reset(self):
         self.depth = 0
         self.target = (0, 0)
 
-    def day(self):
-        return 22
-
-    def input(self, line):
+    def input_line(self, line):
         if line.startswith("depth: "):
             self.depth = int(line.split(' ')[1])
         else:
@@ -159,6 +159,7 @@ class day22(runner):
                     n.distance = u.distance + dist
                     heapq.heappush(heap, (n.distance, n.key, n))
 
-day22().test('Sample input', ['depth: 510', 'target: 10,10'], '114', '45')
+r = runner()
+r.test('Sample input', ['depth: 510', 'target: 10,10'], '114', '45')
 
-day22().solve()
+r.run()

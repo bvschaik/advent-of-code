@@ -1,6 +1,6 @@
+import adventofcode
 import re
 from collections import defaultdict
-from runner import runner
 
 class claim:
     def __init__(self, line):
@@ -15,14 +15,14 @@ class claim:
     def __repr__(self):
         return str.format("claim(id=%d, left=%d, top=%d, width=%d, height=%d)" % (self.id, self.left, self.top, self.width, self.height))
 
-class day03(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(3)
+
+    def reset(self):
         self.inputs = []
 
-    def day(self):
-        return 3
-    
-    def input(self, line):
+    def input_line(self, line):
         self.inputs.append(claim(line))
 
     def solve1(self):
@@ -84,11 +84,11 @@ class day03(runner):
                 rows[claim.top + i].append(claim)
         return rows
 
-
-day03().test('Sample problem', [
+r = runner()
+r.test('Sample problem', [
     '#1 @ 1,3: 4x4',
     '#2 @ 3,1: 4x4',
     '#3 @ 5,5: 2x2'
 ], '4', '3')
 
-day03().solve()
+r.run()

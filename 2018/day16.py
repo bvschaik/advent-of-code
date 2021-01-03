@@ -1,5 +1,5 @@
+import adventofcode
 import re
-from runner import runner
 
 def is_register(n):
     return n >= 0 and n < 4
@@ -126,16 +126,16 @@ class sample:
     def __repr__(self):
         return str.format("%s => %s with %s" % (self.before, self.after, self.instruction))
 
-class day16(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(16)
+
+    def reset(self):
         self.samples = []
         self.program = []
         self.incomplete_sample = None
 
-    def day(self):
-        return 16
-
-    def input(self, line):
+    def input_line(self, line):
         if len(line) == 0:
             return
         m = re.search(r"(\d+),? (\d+),? (\d+),? (\d+)", line)
@@ -202,10 +202,11 @@ class day16(runner):
                     taken_instr.add(instr)
         return final_mapping
 
-day16().test('Sample input', [
+r = runner()
+r.test('Sample input', [
     'Before: [3, 2, 1, 1]',
     '9 2 1 2',
     'After:  [3, 2, 2, 1]',
 ], '1')
 
-day16().solve()
+r.run()

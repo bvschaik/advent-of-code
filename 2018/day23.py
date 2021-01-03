@@ -1,5 +1,5 @@
+import adventofcode
 import re
-from runner import runner
 
 class position:
     def __init__(self, x, y, z):
@@ -71,14 +71,14 @@ class cube:
         cubes.sort(key = lambda c: c.bots_in_range, reverse = True)
         return cubes
 
-class day23(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(23)
+
+    def reset(self):
         self.bots = []
 
-    def day(self):
-        return 23
-
-    def input(self, line):
+    def input_line(self, line):
         m = re.match(r'pos=<(-?\d+),(-?\d+),(-?\d+)>, r=(\d+)', line)
         self.bots.append(nanobot(int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4))))
 
@@ -110,8 +110,9 @@ class day23(runner):
             self.max_position = c.center
         elif c.center.distance_to_origin() < self.max_position.distance_to_origin():
             self.max_position = c.center
-            
-day23().test('Sample input', [
+
+r = runner()
+r.test('Sample input', [
     'pos=<0,0,0>, r=4',
     'pos=<1,0,0>, r=1',
     'pos=<4,0,0>, r=3',
@@ -123,7 +124,7 @@ day23().test('Sample input', [
     'pos=<1,3,1>, r=1',
 ], '7')
 
-day23().test('Sample input part 2', [
+r.test('Sample input part 2', [
     'pos=<10,12,12>, r=2',
     'pos=<12,14,12>, r=2',
     'pos=<16,12,12>, r=4',
@@ -132,4 +133,4 @@ day23().test('Sample input part 2', [
     'pos=<10,10,10>, r=5',
 ], '6', '36')
 
-day23().solve()
+r.run()

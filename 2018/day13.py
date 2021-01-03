@@ -1,5 +1,5 @@
+import adventofcode
 import re
-from runner import runner
 
 RIGHT = 0
 DOWN = 1
@@ -36,15 +36,15 @@ class cart:
             self.direction = RIGHT_DIR[self.direction]
         self.intersect_count = (self.intersect_count + 1) % 3
 
-class day13(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(13)
+
+    def reset(self):
         self.carts = []
         self.map = []
 
-    def day(self):
-        return 13
-
-    def input(self, line):
+    def input_line(self, line):
         y = len(self.map)
         self.map.append(line)
         for (x, c) in enumerate(line):
@@ -118,13 +118,14 @@ class day13(runner):
                 c.turn(LEFT)
         return True
 
-day13().test('Small circle', [
+r = runner()
+r.test('Small circle', [
     "/--\\",
     "^  |",
     "\\->/"
 ], '3,0')
 
-day13().test('Sample input', [
+r.test('Sample input', [
     r"/->-\        ",
     r"|   |  /----\\",
     r"| /-+--+-\  |",
@@ -133,7 +134,7 @@ day13().test('Sample input', [
     r"  \------/   "
 ], '7,3')
 
-day13().test('Sample input part 2', [
+r.test('Sample input part 2', [
     '/>-<\\  ',
     '|   |  ',
     '| /<+-\\',
@@ -143,4 +144,4 @@ day13().test('Sample input part 2', [
     '  \\<->/'
 ], '2,0', '6,4')
 
-day13().solve()
+r.run()

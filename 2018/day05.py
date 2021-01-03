@@ -1,21 +1,21 @@
+import adventofcode
 import string
-from runner import runner
 
-class day05(runner):
+class runner(adventofcode.runner):
     def __init__(self):
-        self.input_line = None
+        super().__init__(5)
 
-    def day(self):
-        return 5
-    
-    def input(self, line):
-        self.input_line = line
+    def reset(self):
+        self.input = None
+
+    def input_line(self, line):
+        self.input = line
 
     def solve1(self):
-        return str(len(self.reduce(self.input_line)))
+        return str(len(self.reduce(self.input)))
 
     def solve2(self):
-        polymer = "".join(self.reduce(self.input_line))
+        polymer = "".join(self.reduce(self.input))
 
         letters = map(lambda x: (x, x.upper()), string.ascii_lowercase)
         return str(min(map(lambda x: len(self.reduce(polymer.replace(x[0], "").replace(x[1], ""))), letters)))
@@ -30,7 +30,7 @@ class day05(runner):
 
         return stack
 
+r = runner()
+r.test('Sample problem', ['dabAcCaCBAcCcaDA'], '10', '4')
 
-day05().test('Sample problem', ['dabAcCaCBAcCcaDA'], '10', '4')
-
-day05().solve()
+r.run()

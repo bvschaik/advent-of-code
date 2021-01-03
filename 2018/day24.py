@@ -1,6 +1,6 @@
+import adventofcode
 import copy
 import re
-from runner import runner
 
 type_immune = 0
 type_infection = 1
@@ -33,16 +33,16 @@ class attack_group:
         c.attack += boost
         return c
 
-class day24(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(24)
+
+    def reset(self):
         self.immune_system = []
         self.infection = []
         self.current = type_immune
 
-    def day(self):
-        return 24
-
-    def input(self, line):
+    def input_line(self, line):
         if not line:
             return
         if line == 'Immune System:':
@@ -71,16 +71,24 @@ class day24(runner):
         return str(sum(map(lambda a: a.units, winning_army)))
 
     def solve2(self):
-        boost = 1
-        while True:
+        min_boost = 1
+        max_boost = 100
+        while min_boost < max_boost:
+            boost = min_boost + (max_boost - min_boost) // 2
             all_armies = [x.copy_with_boost(boost) for x in self.immune_system] + [x.copy() for x in self.infection]
             winning_army = self.do_battle(all_armies)
             if winning_army and winning_army[0].type == type_immune:
-                return str(sum(map(lambda a: a.units, winning_army)))
-            boost += 1
+                max_boost = boost
+            else:
+                min_boost = boost + 1
+        boost = min_boost
+        all_armies = [x.copy_with_boost(boost) for x in self.immune_system] + [x.copy() for x in self.infection]
+        winning_army = self.do_battle(all_armies)
+        return str(sum(map(lambda a: a.units, winning_army)))
 
     def do_battle(self, all_armies):
         can_continue = True
+        play_round = 1
         while can_continue:
             all_armies.sort(key = lambda a: (a.units * a.attack, a.initiative), reverse = True)
 
@@ -114,8 +122,8 @@ class day24(runner):
 
         return all_armies
 
-
-day24().test('Sample input', [
+r = runner()
+r.test('Sample input', [
     'Immune System:',
     '17 units each with 5390 hit points (weak to radiation, bludgeoning) with an attack that does 4507 fire damage at initiative 2',
     '989 units each with 1274 hit points (immune to fire; weak to bludgeoning, slashing) with an attack that does 25 slashing damage at initiative 3',
@@ -125,4 +133,4 @@ day24().test('Sample input', [
     '4485 units each with 2961 hit points (immune to radiation; weak to fire, cold) with an attack that does 12 slashing damage at initiative 4',
 ], '5216')
 
-day24().solve()
+r.run()

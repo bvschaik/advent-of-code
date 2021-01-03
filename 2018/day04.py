@@ -1,5 +1,5 @@
+import adventofcode
 import re
-from runner import runner
 
 class log_entry:
     GUARD = 0
@@ -37,14 +37,14 @@ class guard_data:
     def max_sleeping_minute(self):
         return max(enumerate(self.sleeping_minutes), key = lambda x: x[1])
 
-class day04(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(4)
+
+    def reset(self):
         self.inputs = []
 
-    def day(self):
-        return 4
-    
-    def input(self, line):
+    def input_line(self, line):
         self.inputs.append(log_entry(line))
 
     def solve1(self):
@@ -98,7 +98,8 @@ class day04(runner):
         sleepy_guard = max(guards.values(), key = lambda x: x.max_sleeping_minute()[1])
         return str(sleepy_guard.id * sleepy_guard.max_sleeping_minute()[0])
 
-day04().test('Sample problem', [
+r = runner()
+r.test('Sample problem', [
     '[1518-11-01 00:00] Guard #10 begins shift',
     '[1518-11-01 00:05] falls asleep',
     '[1518-11-01 00:25] wakes up',
@@ -118,4 +119,4 @@ day04().test('Sample problem', [
     '[1518-11-05 00:55] wakes up'
 ], '240', '4455')
 
-day04().solve()
+r.run()

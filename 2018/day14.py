@@ -1,4 +1,4 @@
-from runner import runner
+import adventofcode
 
 class match_data:
     def __init__(self, sequence):
@@ -14,14 +14,14 @@ class match_data:
             self.num_matches = 0
         return False
 
-class day14(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(14)
+
+    def reset(self):
         self.input_recipe = 0
 
-    def day(self):
-        return 14
-
-    def input(self, line):
+    def input_line(self, line):
         self.input_recipe = line
 
     def solve1(self):
@@ -69,11 +69,12 @@ class day14(runner):
             elf2 = (elf2 + recipes[elf2] + 1) % len(recipes)
         pass
 
-day14().test('Sample 1', ['9'], '5158916779')
-day14().test('Sample 2', ['5'], '0124515891')
-day14().test('Sample 5', ['2018'], '5941429882')
+r = runner()
+r.test('Sample 1', ['9'], '5158916779')
+r.test('Sample 2', ['5'], '0124515891')
+r.test('Sample 5', ['2018'], '5941429882')
 
-day14().test('Sample 2.1', ['51589'], '3910137144', '9')
-day14().test('Sample 2.5', ['59414'], '5131221087', '2018')
+r.test('Sample 2.1', ['51589'], '3910137144', '9')
+r.test('Sample 2.5', ['59414'], '5131221087', '2018')
 
-day14().solve()
+r.run()

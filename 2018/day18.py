@@ -1,5 +1,5 @@
+import adventofcode
 import re
-from runner import runner
 
 NONE = 4
 OPEN = 0
@@ -24,14 +24,14 @@ def from_char(x):
     else:
         return LUMBER
 
-class day18(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(18)
+
+    def reset(self):
         self.map = []
 
-    def day(self):
-        return 18
-
-    def input(self, line):
+    def input_line(self, line):
         self.map.append(line)
 
     def solve1(self):
@@ -128,7 +128,8 @@ class day18(runner):
                 print(convert(val), end = '')
             print()
 
-day18().test('Sample input', [
+r = runner()
+r.test('Sample input', [
     '.#.#...|#.',
     '.....#|##|',
     '.|..|...#.',
@@ -141,4 +142,4 @@ day18().test('Sample input', [
     '...#.|..|.',
 ], '1147')
 
-day18().solve()
+r.run()

@@ -1,5 +1,5 @@
+import adventofcode
 import re
-from runner import runner
 
 SAND = 0
 CLAY = 8
@@ -25,14 +25,14 @@ class vein:
         self.y1 = y1
         self.y2 = y2
 
-class day17(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(17)
+
+    def reset(self):
         self.veins = []
 
-    def day(self):
-        return 17
-
-    def input(self, line):
+    def input_line(self, line):
         m = re.match(r"x=(\d+), y=(\d+)\.\.(\d+)", line)
         if m:
             x = int(m.group(1))
@@ -124,7 +124,8 @@ class day17(runner):
                 print(convert(val), end = '')
             print()
 
-day17().test('Sample input', [
+r = runner()
+r.test('Sample input', [
     'x=495, y=2..7',
     'y=7, x=495..501',
     'x=501, y=3..7',
@@ -135,7 +136,7 @@ day17().test('Sample input', [
     'y=13, x=498..504'
 ], '57', '29')
 
-day17().test('Bucket in bucket', [
+r.test('Bucket in bucket', [
     'x=495, y=2..10',
     'y=10, x=495..510',
     'x=510, y=3..10',
@@ -144,4 +145,4 @@ day17().test('Bucket in bucket', [
     'y=7, x=501..504'
 ], '114')
 
-day17().solve()
+r.run()

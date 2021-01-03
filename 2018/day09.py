@@ -1,6 +1,6 @@
+import adventofcode
 import re
 from collections import deque
-from runner import runner
 
 class node:
     def __init__(self, id):
@@ -20,15 +20,15 @@ class node:
         self.next.prev = self.prev
         return self.next
 
-class day09(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(9)
+
+    def reset(self):
         self.players = 0
         self.marbles = 0
 
-    def day(self):
-        return 9
-
-    def input(self, line):
+    def input_line(self, line):
         m = re.match(r'(\d+) players; last marble is worth (\d+) points', line)
         self.players = int(m.group(1))
         self.marbles = int(m.group(2))
@@ -72,11 +72,12 @@ class day09(runner):
                 q.append(m)
         return max(scores)
 
-day09().test('Sample input', ['9 players; last marble is worth 25 points'], '32')
-day09().test('Extra sample 1', ['10 players; last marble is worth 1618 points'], '8317')
-day09().test('Extra sample 2', ['13 players; last marble is worth 7999 points'], '146373')
-day09().test('Extra sample 3', ['17 players; last marble is worth 1104 points'], '2764')
-day09().test('Extra sample 4', ['21 players; last marble is worth 6111 points'], '54718')
-day09().test('Extra sample 5', ['30 players; last marble is worth 5807 points'], '37305')
+r = runner()
+r.test('Sample input', ['9 players; last marble is worth 25 points'], '32')
+r.test('Extra sample 1', ['10 players; last marble is worth 1618 points'], '8317')
+r.test('Extra sample 2', ['13 players; last marble is worth 7999 points'], '146373')
+r.test('Extra sample 3', ['17 players; last marble is worth 1104 points'], '2764')
+r.test('Extra sample 4', ['21 players; last marble is worth 6111 points'], '54718')
+r.test('Extra sample 5', ['30 players; last marble is worth 5807 points'], '37305')
 
-day09().solve()
+r.run()

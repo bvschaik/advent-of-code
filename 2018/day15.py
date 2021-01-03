@@ -1,4 +1,4 @@
-from runner import runner
+import adventofcode
 
 class unit_data:
     def __init__(self, type, x, y):
@@ -11,14 +11,14 @@ class unit_data:
     def __repr__(self):
         return str.format("unit(%s, x=%d, y=%d, hp=%d)" % (self.type, self.x, self.y, self.hp))
 
-class day15(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(15)
+
+    def reset(self):
         self.start_map = []
 
-    def day(self):
-        return 15
-
-    def input(self, line):
+    def input_line(self, line):
         self.start_map.append(line)
 
     def solve1(self):
@@ -208,7 +208,8 @@ class day15(runner):
         sorted_tiles = sorted(tiles, key = lambda p: (p[1], p[0]))
         return sorted_tiles[0]
 
-day15().test('Sample input', [
+r = runner()
+r.test('Sample input', [
     '#######',
     '#.G...#',
     '#...EG#',
@@ -218,7 +219,7 @@ day15().test('Sample input', [
     '#######',
 ], '27730', '4988')
 
-day15().test('Example 1', [
+r.test('Example 1', [
     '#######', #       #######
     '#G..#E#', #       #...#E#   E(200)
     '#E#E.E#', #       #E#...#   E(197)
@@ -228,7 +229,7 @@ day15().test('Example 1', [
     '#######', #       #######
 ], '36334')
 
-day15().test('Example 2', [
+r.test('Example 2', [
     '#######', #       #######   
     '#E..EG#', #       #.E.E.#   E(164), E(197)
     '#.#G.E#', #       #.#E..#   E(200)
@@ -238,7 +239,7 @@ day15().test('Example 2', [
     '#######', #       #######
 ], '39514', '31284')
 
-day15().test('Example 3', [
+r.test('Example 3', [
     '#######', #       #######   
     '#E.G#.#', #       #G.G#.#   G(200), G(98)
     '#.#G..#', #       #.#G..#   G(200)
@@ -248,7 +249,7 @@ day15().test('Example 3', [
     '#######', #       #######   
 ], '27755', '3478')
 
-day15().test('Example 4', [
+r.test('Example 4', [
     '#######', #       #######   
     '#.E...#', #       #.....#   
     '#.#..G#', #       #.#G..#   G(200)
@@ -258,7 +259,7 @@ day15().test('Example 4', [
     '#######', #       #######   
 ], '28944', '6474')
 
-day15().test('Example 5', [
+r.test('Example 5', [
     '#########', #
     '#G......#', #G(137)
     '#.E.#...#', #G(200), G(200)
@@ -270,4 +271,4 @@ day15().test('Example 5', [
     '#########', #
 ], '18740', '1140')
 
-day15().solve()
+r.run()

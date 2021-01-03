@@ -1,6 +1,6 @@
+import adventofcode
 import re
 from functools import partial
-from runner import runner
 
 def exec_addr(a, b, c, registers):
     registers[c] = registers[a] + registers[b]
@@ -74,16 +74,16 @@ instructions = {
     'eqrr': exec_eqrr
 }
 
-class day19(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(19)
+
+    def reset(self):
         self.ip = 0
         self.program = []
         self.optimization = None
 
-    def day(self):
-        return 19
-
-    def input(self, line):
+    def input_line(self, line):
         if line.startswith("#ip"):
             self.ip = int(line[4:])
         else:
@@ -144,7 +144,8 @@ class day19(runner):
                 return False
         return True
 
-day19().test('Sample input', [
+r = runner()
+r.test('Sample input', [
     '#ip 0',
     'seti 5 0 1',
     'seti 6 0 2',
@@ -155,4 +156,4 @@ day19().test('Sample input', [
     'seti 9 0 5',
 ], '7')
 
-day19().solve()
+r.run()

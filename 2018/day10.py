@@ -1,5 +1,5 @@
+import adventofcode
 import re
-from runner import runner
 
 infinite = 10000000
 
@@ -34,14 +34,14 @@ class star:
             time_y = -int(self.y / self.dy)
         return min(time_x, time_y)
 
-class day10(runner):
+class runner(adventofcode.runner):
     def __init__(self):
+        super().__init__(10)
+
+    def reset(self):
         self.stars = []
 
-    def day(self):
-        return 10
-
-    def input(self, line):
+    def input_line(self, line):
         m = re.match(r'position=< *(-?\d+), *(-?\d+)> velocity=< *(-?\d+), *(-?\d+)>', line)
         self.stars.append(star(int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4))))
 
@@ -99,8 +99,8 @@ class day10(runner):
         # Solution to part 2 (time to wait) is already printed by part 1
         pass
 
-
-day10().test('Sample input', [
+r = runner()
+r.test('Sample input', [
     'position=< 9,  1> velocity=< 0,  2>',
     'position=< 7,  0> velocity=<-1,  0>',
     'position=< 3, -2> velocity=<-1,  1>',
@@ -134,4 +134,4 @@ day10().test('Sample input', [
     'position=<-3,  6> velocity=< 2, -1>'
 ], '3')
 
-day10().solve()
+r.run()
