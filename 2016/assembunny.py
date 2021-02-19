@@ -5,26 +5,18 @@ class computer:
         self.execute = {
             'inc': self.inc,
             'dec': self.dec,
-            'cpy_reg': self.cpy_reg,
-            'cpy_val': self.cpy_val,
-            'jnz_reg': self.jnz_reg,
-            'jnz_val': self.jnz_val,
+            'cpy': self.cpy,
+            'jnz': self.jnz,
+            'tgl': self.tgl,
             # Complex instructions
-            'add': self.add
+            'add': self.add,
+            'mul': self.mul
         }
         self.instructions = []
         for instr in instructions:
-            args = instr.split(' ')
-            if len(args) == 2:
-                self.instructions.append((args[0], (args[1])))
-            elif args[1] in 'abcd':
-                self.instructions.append(
-                    (args[0] + '_reg', (args[1], args[2] if args[2] in 'abcd' else int(args[2])))
-                )
-            else:
-                self.instructions.append(
-                    (args[0] + '_val', (int(args[1]), args[2] if args[2] in 'abcd' else int(args[2])))
-                )
+            parts = instr.split(' ')
+            args = tuple(map(lambda a: a if a in 'abcd' else int(a), parts[1:]))
+            self.instructions.append([parts[0], args])
 
     def inc(self, args):
         self.registers[args[0]] += 1
@@ -34,36 +26,50 @@ class computer:
         self.registers[args[0]] -= 1
         self.ip += 1
 
-    def cpy_reg(self, args):
-        self.registers[args[1]] = self.registers[args[0]]
+    def cpy(self, args):
+        if args[1] in self.registers:
+            self.registers[args[1]] = self.get_value(args[0])
         self.ip += 1
 
-    def cpy_val(self, args):
-        self.registers[args[1]] = args[0]
-        self.ip += 1
-
-    def jnz_reg(self, args):
-        if self.registers[args[0]]:
-            self.ip += args[1]
+    def jnz(self, args):
+        if self.get_value(args[0]):
+            self.ip += self.get_value(args[1])
         else:
             self.ip += 1
 
-    def jnz_val(self, args):
-        if args[0]:
-            self.ip += args[1]
+    def tgl(self, args):
+        offset = self.ip + self.get_value(args[0])
+        self.ip += 1
+        if offset < 0 or offset >= len(self.instructions):
+            return
+        instr = self.instructions[offset]
+        if len(instr[1]) == 1:
+            self.instructions[offset][0] = 'dec' if instr[0] == 'inc' else 'inc'
         else:
-            self.ip += 1
+            self.instructions[offset][0] = 'cpy' if instr[0] == 'jnz' else 'jnz'
 
     def add(self, args):
         self.registers[args[1]] += self.registers[args[0]]
         self.registers[args[0]] = 0
         self.ip += 3
 
+    def mul(self, args):
+        self.registers[args[0]] += self.registers[args[1]] * self.registers[args[2]]
+        self.registers[args[2]] = 0
+        self.registers[args[3]] = 0
+        self.ip += 6
+
+    def get_value(self, arg):
+        if isinstance(arg, str):
+            return self.registers[arg]
+        else:
+            return arg
+
     def optimize_add(self):
         for i in range(len(self.instructions) - 2):
             if (self.instructions[i][0] == 'inc'
                 and self.instructions[i+1][0] == 'dec'
-                and self.instructions[i+2][0] == 'jnz_reg'
+                and self.instructions[i+2][0] == 'jnz'
                 and self.instructions[i+1][1][0] == self.instructions[i+2][1][0]):
                 # inc b
                 # dec a
@@ -72,6 +78,30 @@ class computer:
                 reg_src = self.instructions[i+1][1][0]
                 reg_dst = self.instructions[i][1][0]
                 self.instructions[i] = ('add', (reg_src, reg_dst))
+        return self
+
+    def optimize_mul(self):
+        for i in range(len(self.instructions) - 5):
+            if (self.instructions[i][0] == 'cpy'
+                and self.instructions[i+1][0] == 'inc'
+                and self.instructions[i+2][0] == 'dec'
+                and self.instructions[i+3][0] == 'jnz'
+                and self.instructions[i+4][0] == 'dec'
+                and self.instructions[i+5][0] == 'jnz'):
+                # cpy b d
+                # inc a
+                # dec d
+                # jnz d -2
+                # dec c
+                # jnz c
+                # becomes:
+                # a += b * c; c = 0; d = 0
+                dst = self.instructions[i+1][1][0]
+                op1 = self.instructions[i][1][0]
+                op2 = self.instructions[i+5][1][0]
+                nul = self.instructions[i][1][1]
+                self.instructions[i] = ('mul', (dst, op1, op2, nul))
+                # print('optimized', i, self.instructions[i])
         return self
 
     def run_until_end(self):
