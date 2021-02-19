@@ -1,13 +1,13 @@
 class computer:
     def __init__(self, instructions):
-        self.registers = {'a': 0, 'b': 0, 'c': 0, 'd': 0}
-        self.ip = 0
+        self.reset()
         self.execute = {
             'inc': self.inc,
             'dec': self.dec,
             'cpy': self.cpy,
             'jnz': self.jnz,
             'tgl': self.tgl,
+            'out': self.out,
             # Complex instructions
             'add': self.add,
             'mul': self.mul
@@ -17,6 +17,10 @@ class computer:
             parts = instr.split(' ')
             args = tuple(map(lambda a: a if a in 'abcd' else int(a), parts[1:]))
             self.instructions.append([parts[0], args])
+
+    def reset(self):
+        self.registers = {'a': 0, 'b': 0, 'c': 0, 'd': 0}
+        self.ip = 0
 
     def inc(self, args):
         self.registers[args[0]] += 1
@@ -48,13 +52,19 @@ class computer:
         else:
             self.instructions[offset][0] = 'cpy' if instr[0] == 'jnz' else 'jnz'
 
+    def out(self, args):
+        if self.output_func(self.get_value(args[0])):
+            self.ip += 1
+        else:
+            self.ip = len(self.instructions)
+
     def add(self, args):
         self.registers[args[1]] += self.registers[args[0]]
         self.registers[args[0]] = 0
         self.ip += 3
 
     def mul(self, args):
-        self.registers[args[0]] += self.registers[args[1]] * self.registers[args[2]]
+        self.registers[args[0]] += self.get_value(args[1]) * self.registers[args[2]]
         self.registers[args[2]] = 0
         self.registers[args[3]] = 0
         self.ip += 6
@@ -112,3 +122,13 @@ class computer:
             (instr, args) = self.instructions[self.ip]
             self.execute[instr](args)
         # print(counts)
+
+    def run_with_output(self):
+        max_ip = len(self.instructions)
+        while self.ip < max_ip:
+            (instr, args) = self.instructions[self.ip]
+            if instr == 'out':
+                yield self.get_value(args[0])
+                self.ip += 1
+            else:
+                self.execute[instr](args)
